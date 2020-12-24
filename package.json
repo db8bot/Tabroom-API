@@ -1,0 +1,26 @@
+{
+  "name": "tabroomapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AirFusion45/tabroomAPI.git"
+  },
+  "author": "AirFusion45",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AirFusion45/tabroomAPI/issues"
+  },
+  "homepage": "https://github.com/AirFusion45/tabroomAPI#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.5",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "superagent": "^6.1.0"
+  }
+}
