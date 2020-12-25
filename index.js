@@ -40,46 +40,58 @@ app.post('/login', (req, resApp) => {
 app.get('/results', (req, resApp) => {
     console.log(req.body)
     console.log(req.body.token)
-    let resData = null;
+    let resData = "";
 
-    resData = {
-        "DDI": {
-            "Practice Tournament": {
-                "info": {
+    // resData = {
+    //     "history at DDI": {
+    //         "Practice Tournament": {
+    //             "info": {
 
-                },
-                "rounds": {
-                    "Round 1": {
-                        "rfd": "Win",
-                        "judge": "xxx",
-                        "oppoent": "test lv"
-                    }
-                }
-            }
-        }
-    }
+    //             },
+    //             "rounds": {
+    //                 "Round 1": {
+    //                     "rfd": "Win",
+    //                     "judge": "xxx",
+    //                     "oppoent": "test lv"
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
 
     superagent
         .get('https://www.tabroom.com/user/home.mhtml')
         .set("Cookie", req.body.token)
         .end((err, res) => {
-            console.log(res.text)
+            // console.log(res.text)
             var $ = cheerio.load(res.text)
             console.log($("table", ".results.screens").length)
-            for (i = 0; i < $("table", ".main .results.screens").length; i++) { // number of "History at"s -> 2
-                resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] = null // create blank object with key as the "history at..."
-                for (j = 0; j < $("table", ".main .results.screens")[i].children[1].children.length; j++) { // number of rows -> 9
+
+            for (i = 0; i < $("table", ".main .results.screens").length; i++) { // number of "History at"s -> 2 - might be broken
+                // resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] = null // create blank object with key as the "history at..."
+                resData += `${$("div .nospace", ".main .results.screens").filter('h4')[i].innerText}: {` // need closing }, after adding center core below. also need a {} to wrap the json
+                for (j = 0; j < $("table", ".main .results.screens")[i].children[1].children.length-1; j++) { // number of rows -> 9 OR 2
                     // var tournamentObject = {
                     //     : ""
                     // }
-                    resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] += { // use json.parse()
-                        
-                    }
-                    for (k = 0; k < $("table", ".main .results.screens")[2].children[1].children[j].children.length; k++) { // number of fields with in a row, starting with tournament name -> 5
-                        
-                    }
+                    // $("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText
+                    // resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] += JSON.parse(`${$("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText}: {"info": {},"rounds": {}}`) // use json.parse()
+                    console.log($("table", ".main .results.screens")[i].children[1].children.length)
+                    console.log(j)
+                    console.log($("table", ".main .results.screens")[0].children[1].children[j]) // <---
+                    resData += `${$("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText}: { "info": {`
+
+                    // for (k = 0; k < $("table", ".main .results.screens")[2].children[1].children[j].children.length; k++) { // number of fields with in a row, starting with tournament name -> 5
+                    // info part
+                    resData += `"name":{${$("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText}}, "date": {${$("table", ".main .results.screens")[0].children[1].children[0].children[1].innerText.trim()}}, "code": {${$("table", ".main .results.screens")[0].children[1].children[0].children[2].innerText.trim()}}, "division":{${$("table", ".main .results.screens")[0].children[1].children[0].children[3].innerText.trim()}}, "resultsLink":{${$("table", ".main .results.screens")[0].children[1].children[0].children[4].children[0].href}}}` // extra } to close info section
+                    // }
+
                 }
+                resData+=`}` // close "history at... sectioin"
             }
+            resData = `{${resData}}`
+            console.log(JSON.parse(resData))
         })
 })
 
