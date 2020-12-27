@@ -77,7 +77,7 @@ app.get('/me/results', (req, resApp) => {
                 // console.log(($("table", ".main .results.screens")[1].children.find(child => child.name == 'tbody').children.length-1)/2)
 
                 for (j = 0; j < (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2); j++) { // number of rows -> 9 OR 2  // might need a forloop searching for tr elements later on, but seems like its always 2x the actual number +1. 
-                 
+
                     // console.log($("table", ".main .results.screens")[i].children[1].children.length)
                     // console.log(j)
                     // console.log($("table", ".main .results.screens")[0].children.find(child => child.name == 'tbody').children.find(child => child.name == 'tr').children.find(child => child.name == 'td'))
@@ -109,34 +109,48 @@ app.get('/me/results', (req, resApp) => {
                     } else {
                         resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}},` // extra } to close info section
                     }
-                
+
                     // each individual records
 
                     superagent
                         .get(resultsLink)
                         .set("Cookie", req.body.token)
-                        .end((err,recordsRes) => {
+                        .end((err, recordsRes) => {
                             $ = cheerio.load(recordsRes.text)
-                            
+
                             // console.log($('table', '.main .nospace.martopmore').children('tbody').children('tr').length)
-                            for (x = 0; x<$('table', '.main .nospace.martopmore').children('tbody').children('tr').length; x++) { // loop through the number of rounds in that tournament
+                            for (x = 0; x < $('table', '.main .nospace.martopmore').children('tbody').children('tr').length; x++) { // loop through the number of rounds in that tournament
                                 console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[0].children.find(child => child.type == 'text').data.trim())
 
 
-                                console.log($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[1]).children('span').children().text().replace("	", "").replace(/\n/g,"").trim())
+                                console.log($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[1]).children('span').children().text().replace("	", "").replace(/\n/g, "").trim())
 
                                 console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[2].children.find(child => child.type == 'text').data.trim())
                                 console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[3].children.find(child => child.type == 'text').data.trim())
                                 console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[4].children.find(child => child.type == 'text').data.trim())
+                                console.log($($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[0]).text().trim().substring(1))
+                                // console.log($($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[0]).attribs.title)
+
+                                console.log($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[0].children.find(child => child.name == 'span').children.find(child => child.name == 'a').attribs.href)
+
+                                console.log($($($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[1]).children('span')[0]).text().trim())
+                                console.log($($($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[1]).children('span')[1]).text().trim())
+
+                                try {
+                                    console.log($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[2].children.find(child => child.name == 'a').attribs.href)
+                                } catch (err) {
+                                    console.log('No rfd')
+                                }
+
                                 break;
                             }
                         })
-                        break;
+                    break;
 
                     //superagent requests to each tournament's results pg, then forloop the number of rounds
 
                 }
-                if (i+1 === $("div .nospace", ".main .results.screens").filter('h4').length) { // final history at section, no need for ,
+                if (i + 1 === $("div .nospace", ".main .results.screens").filter('h4').length) { // final history at section, no need for ,
                     resData += `}` // close "history at... sectioin"
                 } else { // more history at sections below, need comma to seperate
                     resData += `},` // close "history at... sectioin"
@@ -146,6 +160,12 @@ app.get('/me/results', (req, resApp) => {
             // console.log(JSON.parse(resData))
             // resApp.send(JSON.parse(resData))
         })
+})
+
+app.get('/me/future', (req, resApp) => {
+    console.log(req.body)
+    console.log(req.body.token)
+    
 })
 
 
