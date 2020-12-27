@@ -69,19 +69,15 @@ app.get('/results', (req, resApp) => {
             // console.log($("div .nospace", ".main .results.screens").filter('h4'))
 
             for (i = 0; i < $("div .nospace", ".main .results.screens").filter('h4').length; i++) { // number of "History at"s -> 2
-                // resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] = null // create blank object with key as the "history at..."
+
                 // console.log($("div .nospace", ".main .results.screens").filter('h4')[i].children.find(child => child.type == 'text').data.trim())
-                resData += `${$("div .nospace", ".main .results.screens").filter('h4')[i].children.find(child => child.type == 'text').data.trim()}: {` // need closing }, after adding center core below. also need a {} to wrap the json
+
+                resData += `"${$("div .nospace", ".main .results.screens").filter('h4')[i].children.find(child => child.type == 'text').data.trim()}": {` // need closing }, after adding center core below. also need a {} to wrap the json
 
                 // console.log(($("table", ".main .results.screens")[1].children.find(child => child.name == 'tbody').children.length-1)/2)
 
-                for (j = 0; j < ($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length-1)/2; j++) { // number of rows -> 9 OR 2  // might need a forloop searching for tr elements later on, but seems like its always 2x the actual number +1. 
-
-                    // var tournamentObject = {
-                    //     : ""
-                    // }
-                    // $("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText
-                    // resData[$("div .nospace", ".main .results.screens").filter('h4')[i].innerText] += JSON.parse(`${$("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText}: {"info": {},"rounds": {}}`) // use json.parse()
+                for (j = 0; j < (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2); j++) { // number of rows -> 9 OR 2  // might need a forloop searching for tr elements later on, but seems like its always 2x the actual number +1. 
+                 
                     // console.log($("table", ".main .results.screens")[i].children[1].children.length)
                     // console.log(j)
                     // console.log($("table", ".main .results.screens")[0].children.find(child => child.name == 'tbody').children.find(child => child.name == 'tr').children.find(child => child.name == 'td'))
@@ -90,21 +86,44 @@ app.get('/results', (req, resApp) => {
                     // console.log($("table", ".main .results.screens")[0].children[1].children[j].parent.parent.children.find(child => child.name == 'tbody').children.find(child => child.name == 'tr'))
                     // console.log($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim())
 
-                    resData += `${$($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()}: { "info": {` // -> DDI Tournament
+                    resData += `"${$($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()}": { "info": {` // -> DDI Tournament - set tournament section, which iwll hold the info
 
-                    // for (k = 0; k < $("table", ".main .results.screens")[2].children[1].children[j].children.length; k++) { // number of fields with in a row, starting with tournament name -> 5
                     // info part
 
-                    resData += `"name":{${$("table", ".main .results.screens")[0].children[1].children[j].children[0].innerText}}, "date": {${$("table", ".main .results.screens")[0].children[1].children[0].children[1].innerText.trim()}}, "code": {${$("table", ".main .results.screens")[0].children[1].children[0].children[2].innerText.trim()}}, "division":{${$("table", ".main .results.screens")[0].children[1].children[0].children[3].innerText.trim()}}, "resultsLink":{${$("table", ".main .results.screens")[0].children[1].children[0].children[4].children[0].href}}}` // extra } to close info section
-                    // }
+                    // console.log($($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[4].children.find(child => child.name == 'a').attribs.href)
+
+                    let name = $($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    let date = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+
+                    let code = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+
+                    let division = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[3].children.find(child => child.type == 'text').data.trim()
+
+                    let resultsLink = "https://www.tabroom.com/user/student/" + $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[4].children.find(child => child.name == 'a').attribs.href
+
+
+
+                    if (j + 1 === (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2)) { // its at the end, dont add comma cause no more tournaments after it
+                        resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}}` // extra } to close info section
+                    } else {
+                        resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}},` // extra } to close info section
+                    }
+                
+                    // each individual records
 
                     //superagent requests to each tournament's results pg, then forloop the number of rounds
 
                 }
-                resData+=`}` // close "history at... sectioin"
+                if (i+1 === $("div .nospace", ".main .results.screens").filter('h4').length) { // final history at section, no need for ,
+                    resData += `}` // close "history at... sectioin"
+                } else { // more history at sections below, need comma to seperate
+                    resData += `},` // close "history at... sectioin"
+                }
             }
             resData = `{${resData}}`
             console.log(JSON.parse(resData))
+            resApp.send(JSON.parse(resData))
         })
 })
 
