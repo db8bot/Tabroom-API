@@ -37,7 +37,7 @@ app.post('/login', (req, resApp) => {
 })
 
 
-app.get('/results', (req, resApp) => {
+app.get('/me/results', (req, resApp) => {
     console.log(req.body)
     console.log(req.body.token)
     let resData = "";
@@ -112,6 +112,27 @@ app.get('/results', (req, resApp) => {
                 
                     // each individual records
 
+                    superagent
+                        .get(resultsLink)
+                        .set("Cookie", req.body.token)
+                        .end((err,recordsRes) => {
+                            $ = cheerio.load(recordsRes.text)
+                            
+                            // console.log($('table', '.main .nospace.martopmore').children('tbody').children('tr').length)
+                            for (x = 0; x<$('table', '.main .nospace.martopmore').children('tbody').children('tr').length; x++) { // loop through the number of rounds in that tournament
+                                console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[0].children.find(child => child.type == 'text').data.trim())
+
+
+                                console.log($($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[1]).children('span').children().text().replace("	", "").replace(/\n/g,"").trim())
+
+                                console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[2].children.find(child => child.type == 'text').data.trim())
+                                console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[3].children.find(child => child.type == 'text').data.trim())
+                                console.log($($('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[4].children.find(child => child.type == 'text').data.trim())
+                                break;
+                            }
+                        })
+                        break;
+
                     //superagent requests to each tournament's results pg, then forloop the number of rounds
 
                 }
@@ -122,8 +143,8 @@ app.get('/results', (req, resApp) => {
                 }
             }
             resData = `{${resData}}`
-            console.log(JSON.parse(resData))
-            resApp.send(JSON.parse(resData))
+            // console.log(JSON.parse(resData))
+            // resApp.send(JSON.parse(resData))
         })
 })
 
