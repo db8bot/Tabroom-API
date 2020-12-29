@@ -220,19 +220,48 @@ app.get('/me/results', async function (req, resApp) {
 app.get('/me/future', (req, resApp) => {
     console.log(req.body)
     console.log(req.body.token)
+    superagent
+        .get('https://www.tabroom.com/user/student/index.mhtml')
+        .set("Cookie", req.body.token)
+        .redirects(0)
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+
+            var futureList = []
+            var futureTournament = null
+            for (i = 0; i < $('#upcoming').children('tbody').children('tr').length; i++) {
+                futureTournament = {
+                    "name": '',
+                    "location": '',
+                    "date": '',
+                    "event": '',
+                    "eventLink": '',
+                    "info": '',
+                    "status": '',
+                    "prefs": ''
+                }
+
+                console.log($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]) //broken
+                 // console.log($($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[1].data.trim())
+                break;
+            }
+        })
 
 })
 
 
-app.get('/paradigm', (req, resApp) => { // no auth func
-    console.log(req.body)
-    // console.log(req.body.paradigm)
+app.get('/paradigm', (req, resApp) => {
+    /**
+     * @param {object}: 
+     *  {type: "name", first: "john", last: "appleseed"}
+     *  {type: "id", id: "1234"}
+     *  {type: "link", link: "https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=6606"}
+     * @returns {Array}: ["Raw Paradigm Text", "Paradigm Text w/ HTML Markup", ...judging records...]
+     */
 
     var requestLink = ""
-    var xwww = false
     if (req.body.type === 'name') {
         requestLink = `https://www.tabroom.com/index/paradigm.mhtml`
-        xwww = true
     } else if (req.body.type === 'id') {
         requestLink = `https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=${req.body.id}`
     } else if (req.body.type === 'link') {
@@ -247,13 +276,9 @@ app.get('/paradigm', (req, resApp) => { // no auth func
             .send(JSON.parse(`{"search_first": "${req.body.first}", "search_last": "${req.body.last}"}`))
             .end((err, res) => {
                 var $ = cheerio.load(res.text)
-
-
-                // loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
-
-
-                // console.log($('#record'))
-
+                /**
+                 * loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
+                 */
                 var roundJudgedInfo = null
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
@@ -290,7 +315,9 @@ app.get('/paradigm', (req, resApp) => { // no auth func
 
                     roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
 
-                    // break;
+                    /** Debugging
+                     * break;
+                     */
 
                     judgeRecord.push(roundJudgedInfo)
 
@@ -299,18 +326,14 @@ app.get('/paradigm', (req, resApp) => { // no auth func
             })
     }
     else {
-        // console.log('brrrrr')
         superagent
             .get(requestLink)
             .redirects(0)
             .end((err, res) => {
                 var $ = cheerio.load(res.text)
-
-                // loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
-
-
-                // console.log($('#record'))
-
+                /**
+                 * loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
+                 */
                 var roundJudgedInfo = null
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
@@ -346,10 +369,11 @@ app.get('/paradigm', (req, resApp) => { // no auth func
 
                     roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
 
-                    // break;
+                    /** Debugging
+                     * break;
+                     */
 
                     judgeRecord.push(roundJudgedInfo)
-
                 }
                 resApp.send(judgeRecord)
             })
