@@ -41,6 +41,7 @@ app.get('/me/results', async function (req, resApp) {
     /**
      * @param {string} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      * @returns {Object} -> Token bearer's past competition history in JSON format
+     * @description Might be for policy tab accounts only - non policy accounts may have different formatting in the results page (especially speech)
      */
 
     let resData = "";
@@ -105,10 +106,10 @@ app.get('/me/results', async function (req, resApp) {
 
                         let resultsLink = "https://www.tabroom.com/user/student/" + $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[4].children.find(child => child.name == 'a').attribs.href;
 
-                      
+
                         resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}, "rounds":{`; // extra } to close info section
 
-                        
+
                         resData = await individualRecords(resData, resultsLink, req, $, j, i)
 
                         /** Debugging
@@ -162,11 +163,11 @@ app.get('/me/results', async function (req, resApp) {
                             let startTime = individualCheerio(individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[1]).children('span').children().text().replace("	", "").replace(/\n/g, "").trim();
 
                             let room = individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[2].children.find(child => child.type == 'text').data.trim();
-                            
+
                             let side = individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[3].children.find(child => child.type == 'text').data.trim();
-                            
+
                             let oppoentCode = individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[4].children.find(child => child.type == 'text').data.trim();
-                            
+
                             let judgeName = individualCheerio(individualCheerio(individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[0]).text().trim().substring(1);
 
                             let judgeParadigmLink = ""
@@ -178,7 +179,7 @@ app.get('/me/results', async function (req, resApp) {
 
                             let result = individualCheerio(individualCheerio(individualCheerio(individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[1]).children('span')[0]).text().trim();
                             if (result.length > 5) result = "no result" // if its longer than 5 chars then its prob bad data
-                            
+
                             let speaks = individualCheerio(individualCheerio(individualCheerio(individualCheerio(individualCheerio('table', '.main .nospace.martopmore').children('tbody').children('tr')[x]).children('td')[5]).children('div').children('span')[1]).children('span')[1]).text().trim();
 
                             let rfdLink = "";
@@ -222,10 +223,137 @@ app.get('/me/future', (req, resApp) => {
 
 })
 
+
 app.get('/paradigm', (req, resApp) => { // no auth func
     console.log(req.body)
-    console.log(req.body.paradigm)
-    
+    // console.log(req.body.paradigm)
+
+    var requestLink = ""
+    var xwww = false
+    if (req.body.type === 'name') {
+        requestLink = `https://www.tabroom.com/index/paradigm.mhtml`
+        xwww = true
+    } else if (req.body.type === 'id') {
+        requestLink = `https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=${req.body.id}`
+    } else if (req.body.type === 'link') {
+        requestLink = req.body.link
+    }
+
+    if (req.body.first != undefined) {
+        superagent
+            .post('https://www.tabroom.com/index/paradigm.mhtml')
+            .set('Content-Type', 'application/x-www-form-urlencoded')
+            .redirects(0)
+            .send(JSON.parse(`{"search_first": "${req.body.first}", "search_last": "${req.body.last}"}`))
+            .end((err, res) => {
+                var $ = cheerio.load(res.text)
+
+
+                // loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
+
+
+                // console.log($('#record'))
+
+                var roundJudgedInfo = null
+                var judgeRecord = []
+                judgeRecord.push($('.paradigm').text())
+                judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
+
+                for (i = 0; i < $('#record').children('tbody').children('tr').length; i++) {
+                    roundJudgedInfo = {
+                        "tournament": "",
+                        "date": "",
+                        "timestamp": "",
+                        "event": "",
+                        "round": "",
+                        "affTeamCode": "",
+                        "negTeamCode": "",
+                        "judgeVote": "",
+                        "result": ""
+                    }
+
+                    roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').next.data.trim()
+
+                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+
+                    // break;
+
+                    judgeRecord.push(roundJudgedInfo)
+
+                }
+                resApp.send(judgeRecord)
+            })
+    }
+    else {
+        // console.log('brrrrr')
+        superagent
+            .get(requestLink)
+            .redirects(0)
+            .end((err, res) => {
+                var $ = cheerio.load(res.text)
+
+                // loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
+
+
+                // console.log($('#record'))
+
+                var roundJudgedInfo = null
+                var judgeRecord = []
+                judgeRecord.push($('.paradigm').text())
+                judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
+                for (i = 0; i < $('#record').children('tbody').children('tr').length; i++) {
+                    roundJudgedInfo = {
+                        "tournament": "",
+                        "date": "",
+                        "timestamp": "",
+                        "event": "",
+                        "round": "",
+                        "affTeamCode": "",
+                        "negTeamCode": "",
+                        "judgeVote": "",
+                        "result": ""
+                    }
+
+                    roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').next.data.trim()
+
+                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+
+                    // break;
+
+                    judgeRecord.push(roundJudgedInfo)
+
+                }
+                resApp.send(judgeRecord)
+            })
+    }
 })
 
 
