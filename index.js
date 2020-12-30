@@ -9,6 +9,14 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+/**
+ * @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
+ * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
+ * @todo add tournament ID field to info section on /me/results
+ * @todo app.get('/upcoming') -> no auth, upcoming tournaments on the first plage, along with their IDs
+ * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
+ */
+
 
 app.post('/login', (req, resApp) => {
     /**
@@ -37,12 +45,37 @@ app.post('/login', (req, resApp) => {
 })
 
 
+app.get('/test', (req, resApp) => {
+    // superagent
+    //     .get('https://www.tabroom.com/user/home.mhtml')
+    //     .set("Cookie", req.body.token)
+    //     .end((err, res) => {
+    //         var $ = cheerio.load(res.text)
+    //         // history @ 0, tournament row @ 0
+    //         console.log()
+
+
+    //     })
+    // var twoMonthBeforeDateObj = new Date()
+
+    // twoMonthBeforeDateObj.setMonth(twoMonthBeforeDateObj.getMonth() - 2) // set it (-2) months before
+
+    // twoMonthBeforeDateObj.setHours(0, 0, 0)
+
+    // twoMonthBeforeDateObj.setMilliseconds(0)
+
+    // console.log(twoMonthBeforeDateObj) // timestamp 2 months before today
+
+})
+
 app.get('/me/results', async function (req, resApp) {
     /**
      * @param {string} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      * @returns {Object} -> Token bearer's past competition history in JSON format
      * @description Might be for policy tab accounts only - non policy accounts may have different formatting in the results page (especially speech)
+     *  Navigation of returned Object: https://stackoverflow.com/a/42097380/9108905
      */
+    // req.body.short
 
     let resData = "";
 
@@ -100,15 +133,33 @@ app.get('/me/results', async function (req, resApp) {
 
                         let date = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim();
 
+                        // if timestamp date > 2*<month unix unix value> - tournament more than 2 mo ago. -> set j = limit condition
+
+                        let dateUnix = Date.parse($($($("table", ".main .results.screens")[0].children.find(child => child.name == 'tbody')).children('tr')[0]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim())
+
+                        var twoMonthBeforeDateObj = new Date()
+
+                        twoMonthBeforeDateObj.setMonth(twoMonthBeforeDateObj.getMonth() - 2) // set it (-2) months before
+
+                        twoMonthBeforeDateObj.setHours(0, 0, 0)
+
+                        twoMonthBeforeDateObj.setMilliseconds(0)
+
+                        // console.log(twoMonthBeforeDateObj.getTime()) // timestamp 2 months before today
+
+                        
                         let code = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[2].children.find(child => child.type == 'text').data.trim();
-
+                        
                         let division = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[3].children.find(child => child.type == 'text').data.trim();
-
+                        
                         let resultsLink = "https://www.tabroom.com/user/student/" + $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[4].children.find(child => child.name == 'a').attribs.href;
-
-
+                        
+                        
                         resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}, "rounds":{`; // extra } to close info section
-
+                        
+                        if (dateUnix < twoMonthBeforeDateObj.getTime() && req.body.short === 'true') {
+                            j = (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2)-1;
+                        }
 
                         resData = await individualRecords(resData, resultsLink, req, $, j, i)
 
@@ -215,11 +266,8 @@ app.get('/me/results', async function (req, resApp) {
 })
 
 
-// app.get('/me/resultChange') ?
 
 app.get('/me/future', (req, resApp) => {
-    console.log(req.body)
-    console.log(req.body.token)
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml')
         .set("Cookie", req.body.token)
@@ -238,16 +286,36 @@ app.get('/me/future', (req, resApp) => {
                     "eventLink": '',
                     "info": '',
                     "status": '',
-                    "prefs": ''
+                    "prefs": '',
+                    "notes": ''
                 }
 
-                console.log($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]) //broken
-                 // console.log($($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[1].data.trim())
-                break;
+                futureTournament.name = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[0].children.find(child => child.type == 'text').data.trim()
+
+                futureTournament.location = $($($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[1]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+
+                futureTournament.date = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
+
+                futureTournament.event = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).text().trim()
+
+                futureTournament.eventLink = "https://www.tabroom.com" + $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href
+
+                futureTournament.info = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[3]).text().trim()
+
+                futureTournament.status = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+
+                futureTournament.prefs = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[5]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+
+                futureTournament.notes = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[6]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+
+                futureList.push(futureTournament)
             }
+
+            resApp.send(futureTournament)
         })
 
 })
+
 
 
 app.get('/paradigm', (req, resApp) => {
