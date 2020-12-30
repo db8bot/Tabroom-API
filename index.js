@@ -2,6 +2,7 @@ const express = require('express')
 const { response } = require('express');
 const cheerio = require('cheerio');
 const superagent = require('superagent');
+const apiKey = require('./apiKeys.json')
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 var app = express()
@@ -10,10 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 /**
- * @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
  * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
- * @todo add tournament ID field to info section on /me/results
- * @todo app.get('/upcoming') -> no auth, upcoming tournaments on the first plage, along with their IDs
  * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
 
@@ -23,6 +21,11 @@ app.post('/login', (req, resApp) => {
     * @param {Object} -> Username: Tabroom email & Password: Tabroom password EX: { username: 'yfang@ex.org', password: 'password' } - Encode: X-WWW-FORM-URLENCODED
     * @returns {Object} -> Token: Tabroom Token (Format: Cookie) & Expiration: Tabroom Token Expiration Date (GMT)
     */
+
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
 
     let resData = null;
     superagent
@@ -46,36 +49,99 @@ app.post('/login', (req, resApp) => {
 
 
 app.get('/test', (req, resApp) => {
-    // superagent
-    //     .get('https://www.tabroom.com/user/home.mhtml')
-    //     .set("Cookie", req.body.token)
-    //     .end((err, res) => {
-    //         var $ = cheerio.load(res.text)
-    //         // history @ 0, tournament row @ 0
-    //         console.log()
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+})
 
+app.get('/me', async function (req, resApp) {
+    // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
 
-    //     })
-    // var twoMonthBeforeDateObj = new Date()
+    nsda(req, resApp)
+    async function nsda(req, resApp) {
+        superagent
+            .get('https://www.tabroom.com/user/student/nsda.mhtml')
+            .set("Cookie", req.body.token)
+            .end(async (err, res) => {
+                var $ = cheerio.load(res.text)
 
-    // twoMonthBeforeDateObj.setMonth(twoMonthBeforeDateObj.getMonth() - 2) // set it (-2) months before
+                var userInfo = {
+                    'nsdaMemberNumber': null,
+                    'nsdaPoints': null,
+                    'districtTournament': null,
+                    'nsdaAffiliation': null,
+                    'latestNsdaHonor': null,
+                    'latestNsdaHonorDate': null,
 
-    // twoMonthBeforeDateObj.setHours(0, 0, 0)
+                    'nameFirst': null,
+                    'nameLast': null,
+                    'email': null,
+                    'timezone': null,
+                    'pronouns': null
+                }
 
-    // twoMonthBeforeDateObj.setMilliseconds(0)
+                userInfo.nsdaMemberNumber = $($($('#content .main').children('div')[0]).children('span')[0]).text().trim().replace(/Member/g, '').replace(/#/g, '').trim()
 
-    // console.log(twoMonthBeforeDateObj) // timestamp 2 months before today
+                userInfo.nsdaPoints = $($($('#content .main').children('div')[0]).children('span')[1]).children('div')[1].children.find(child => child.type == 'text').data.trim().replace(/\D/g, '')
+
+                userInfo.districtTournament = ($($($('#content .main').children('div')[0]).children('span')[1]).children('div')[2].children.find(child => child.type == 'text').data.trim().replace(/\t/g, "").replace(/\n/g, " ").toLowerCase().includes('you are eligible') ? userInfo.districtTournament = true : userInfo.districtTournament = false)
+
+                userInfo.nsdaAffiliation = $($($($('#content .main').children('div')[1]).children('span')[0]).children('div')[0]).children('span')[3].children.find(child => child.type == 'text').data.trim()
+
+                userInfo.latestNsdaHonor = $($($($('#content .main').children('div')[1]).children('span')[0]).children('div')[0]).children('span')[1].children.find(child => child.type == 'text').data.trim()
+
+                userInfo.latestNsdaHonorDate = $($($($('#content .main').children('div')[1]).children('span')[0]).children('div')[0]).children('span')[2].children.find(child => child.type == 'text').data.trim()
+
+                userInfo = await profile(req, userInfo)
+
+                resApp.send(userInfo)
+            })
+    }
+
+    async function profile(req, userInfo) {
+        return new Promise((resolve, reject) => {
+            superagent
+                .get('https://www.tabroom.com/user/login/profile.mhtml')
+                .set("Cookie", req.body.token)
+                .end((err, res) => {
+                    var $ = cheerio.load(res.text)
+                    // history @ 0, tournament row @ 0
+                    userInfo.nameFirst = $($($($($('#content .main').children('form')[0]).children('span')[0]).children('div')[0]).children('span')[1]).children('input[type=text][name=first]').val()
+
+                    userInfo.nameLast = $($($($($('#content .main').children('form')[0]).children('span')[0]).children('div')[2]).children('span')[1]).children('input[type=text][name=last]').val()
+
+                    userInfo.email = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[0]).children('span')[1]).children('input[type=text][name=email]').val()
+
+                    // $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[3]).children('span')[1]).children("select").val()
+                    userInfo.timezone = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[3]).children('span')[1]).children("select").find('option:selected').text().trim()
+
+                    userInfo.pronouns = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[4]).children('span')[1]).children('input[type=text][name=pronoun]').val().trim()
+
+                    resolve(userInfo)
+                })
+        })
+    }
 
 })
 
 app.get('/me/results', async function (req, resApp) {
     /**
-     * @param {string} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
+     * @param {Object} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY & Short: a integer representing the number of months to go back when collecting records. Ex: short = 2 will only collect records from tournnaments that were held 2 months ago from today. Encode: X-WWW-FORM-URLENCODED - USE "short" FOR X-WWW-FORM-URLENCODED KEY
+     *  {'token': 'Tabroom.com token', 'short': '2'}
      * @returns {Object} -> Token bearer's past competition history in JSON format
      * @description Might be for policy tab accounts only - non policy accounts may have different formatting in the results page (especially speech)
      *  Navigation of returned Object: https://stackoverflow.com/a/42097380/9108905
      */
-    // req.body.short
+
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
 
     let resData = "";
 
@@ -108,7 +174,7 @@ app.get('/me/results', async function (req, resApp) {
                      * console.log(($("table", ".main .results.screens")[1].children.find(child => child.name == 'tbody').children.length-1)/2)
                      */
 
-                    for (j = 0; j < (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2); j++) { // number of rows -> 9 OR 2  // might need a forloop searching for tr elements later on, but seems like its always 2x the actual number +1. 
+                    for (j = 0; j < (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2); j++) { // number of rows // might need a forloop searching for tr elements later on, but seems like its always 2x the actual number +1. 
 
                         /** Debugging
                          * console.log($("table", ".main .results.screens")[i].children[1].children.length)
@@ -120,7 +186,7 @@ app.get('/me/results', async function (req, resApp) {
                          * console.log($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim())
                          */
 
-                        resData += `"${$($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()}": { "info": {`; // -> DDI Tournament - set tournament section, which iwll hold the info
+                        resData += `"${$($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()}": { "info": {`; // - set tournament section, which will hold the info & rounds sections
 
 
                         // info part
@@ -131,36 +197,44 @@ app.get('/me/results', async function (req, resApp) {
 
                         let name = $($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim();
 
+                        let tournamentID = $($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').attribs.href.substring($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').attribs.href.indexOf('tourn_id=') + 9, $($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j].children.find(child => child.name == 'td').children.find(child => child.name == 'a').attribs.href.indexOf('&student_id='))
+
                         let date = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim();
 
                         // if timestamp date > 2*<month unix unix value> - tournament more than 2 mo ago. -> set j = limit condition
 
-                        let dateUnix = Date.parse($($($("table", ".main .results.screens")[0].children.find(child => child.name == 'tbody')).children('tr')[0]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim())
+                        let dateUnix = Date.parse($($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim())
 
                         var twoMonthBeforeDateObj = new Date()
 
-                        twoMonthBeforeDateObj.setMonth(twoMonthBeforeDateObj.getMonth() - 2) // set it (-2) months before
+                        twoMonthBeforeDateObj.setMonth(twoMonthBeforeDateObj.getMonth() - parseInt(req.body.short)) // set it (-n) months before
 
                         twoMonthBeforeDateObj.setHours(0, 0, 0)
 
                         twoMonthBeforeDateObj.setMilliseconds(0)
 
-                        // console.log(twoMonthBeforeDateObj.getTime()) // timestamp 2 months before today
+                        /** Debugging
+                         * console.log(twoMonthBeforeDateObj.getTime()) // timestamp n months before today
+                         */
 
-                        
                         let code = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[2].children.find(child => child.type == 'text').data.trim();
-                        
+
                         let division = $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[3].children.find(child => child.type == 'text').data.trim();
-                        
+
                         let resultsLink = "https://www.tabroom.com/user/student/" + $($($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody')).children('tr')[j]).children('td')[4].children.find(child => child.name == 'a').attribs.href;
-                        
-                        
-                        resData += `"name": "${name}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}, "rounds":{`; // extra } to close info section
-                        
-                        if (dateUnix < twoMonthBeforeDateObj.getTime() && req.body.short === 'true') {
-                            j = (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2)-1;
+
+
+                        resData += `"name": "${name}", "tournID": "${tournamentID}", "date": "${date}", "code": "${code}", "division": "${division}", "resultsLink": "${resultsLink}"}, "rounds":{`; // extra } to close info section
+
+                        /** Debugging
+                         * console.log("UNIX" + dateUnix)
+                         */
+
+                        if ((dateUnix < twoMonthBeforeDateObj.getTime()) && (req.body.short != undefined)) {
+                            j = (($("table", ".main .results.screens")[i].children.find(child => child.name == 'tbody').children.length - 1) / 2) - 1;
                         }
 
+                        // call func to complete the rounds part
                         resData = await individualRecords(resData, resultsLink, req, $, j, i)
 
                         /** Debugging
@@ -268,6 +342,17 @@ app.get('/me/results', async function (req, resApp) {
 
 
 app.get('/me/future', (req, resApp) => {
+    /**
+     * @param {Object} -> Token: User's Tabroom.com token - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
+     *  {'token': 'Tabroom.com Token'}
+     * @returns {Array} -> [...<n> future tournaments...] - Order: Most recent one first, as appears on tabroom.com
+     */
+
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml')
         .set("Cookie", req.body.token)
@@ -320,12 +405,17 @@ app.get('/me/future', (req, resApp) => {
 
 app.get('/paradigm', (req, resApp) => {
     /**
-     * @param {object}: 
+     * @param {object} -> EITHER:
      *  {type: "name", first: "john", last: "appleseed"}
      *  {type: "id", id: "1234"}
      *  {type: "link", link: "https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=6606"}
      * @returns {Array}: ["Raw Paradigm Text", "Paradigm Text w/ HTML Markup", ...judging records...]
      */
+
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
 
     var requestLink = ""
     if (req.body.type === 'name') {
@@ -446,6 +536,55 @@ app.get('/paradigm', (req, resApp) => {
                 resApp.send(judgeRecord)
             })
     }
+})
+
+app.get('/upcoming', (req, resApp) => {
+
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
+    superagent
+        .get('https://www.tabroom.com/index/index.mhtml')
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+
+            var upcomingTournaments = []
+            var tournament = null
+
+            for (i = 0; i < $('#tournlist').children('tbody').children('tr').length; i++) {
+                tournament = {
+                    "date": null,
+                    "name": null,
+                    "tournamentID": null,
+                    "city": null,
+                    "stateCountry": null,
+                    "reg": null
+                }
+
+                tournament.date = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).text().trim().replace(/\t/g, "").replace(/\n/g, "").replace($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).children().text().trim(), "")
+
+                tournament.name = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1]).children('a').text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+
+                tournament.tournamentID = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'a').attribs.href.substring($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'a').attribs.href.indexOf('tourn_id=') + 9)
+
+                tournament.city = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+
+                try {
+                    tournament.stateCountry = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                } catch (err) {
+                    tournament.stateCountry = ""
+                }
+
+                tournament.reg = $($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[4]).children('a')[0]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+
+                // break;
+
+                upcomingTournaments.push(tournament)
+            }
+            resApp.send(upcomingTournaments)
+        })
 })
 
 
