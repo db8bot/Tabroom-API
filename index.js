@@ -442,6 +442,11 @@ app.get('/paradigm', (req, resApp) => {
                 judgeRecord.push($('.paradigm').text())
                 judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
 
+                if (req.body.short == 'true') {
+                    resApp.send(judgeRecord)
+                    return;
+                }
+
                 for (i = 0; i < $('#record').children('tbody').children('tr').length; i++) {
                     roundJudgedInfo = {
                         "tournament": "",
