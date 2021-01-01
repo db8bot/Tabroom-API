@@ -23,6 +23,7 @@ app.post('/login', (req, resApp) => {
     */
 
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
