@@ -51,14 +51,17 @@ app.post('/login', (req, resApp) => {
 
 app.get('/test', (req, resApp) => {
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
+    resApp.send('Test Successful')
 })
 
 app.get('/me', async function (req, resApp) {
     // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
@@ -140,6 +143,7 @@ app.get('/me/results', async function (req, resApp) {
      */
 
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
@@ -350,6 +354,7 @@ app.get('/me/future', (req, resApp) => {
      */
 
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
@@ -414,6 +419,7 @@ app.get('/paradigm', (req, resApp) => {
      */
 
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
@@ -547,6 +553,7 @@ app.get('/paradigm', (req, resApp) => {
 app.get('/upcoming', (req, resApp) => {
 
     if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
