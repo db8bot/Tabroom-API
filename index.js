@@ -406,8 +406,12 @@ app.get('/me/future', (req, resApp) => {
 
                 futureList.push(futureTournament)
             }
-
-            resApp.send(futureList)
+            if (futureList === []) {
+                resApp.sendStatus(204)
+                // resApp.send('No future entries')
+            } else {
+                resApp.send(futureList)
+            }
         })
 
 })
