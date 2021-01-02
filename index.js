@@ -372,6 +372,7 @@ app.get('/me/future', (req, resApp) => {
 
             var futureList = []
             var futureTournament = null
+
             for (i = 0; i < $('#upcoming').children('tbody').children('tr').length; i++) {
                 futureTournament = {
                     "name": '',
@@ -406,7 +407,7 @@ app.get('/me/future', (req, resApp) => {
                 futureList.push(futureTournament)
             }
 
-            resApp.send(futureTournament)
+            resApp.send(futureList)
         })
 
 })
