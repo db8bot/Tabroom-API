@@ -58,6 +58,27 @@ app.get('/test', (req, resApp) => {
     resApp.send('Test Successful')
 })
 
+app.get('/me/test', (req, resApp) => {
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+    superagent
+        .get('https://www.tabroom.com/user/student/index.mhtml')
+        .set("Cookie", req.body.token)
+        .redirects(0)
+        .end((err, res) => {
+            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
+                resApp.status(403)
+                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                return false;
+            } else {
+                resApp.send('Test Successful')
+            }
+        })
+})
+
 app.get('/me', async function (req, resApp) {
     // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
     if (!apiKey.includes(req.body.apiauth)) {
@@ -93,6 +114,8 @@ app.get('/me', async function (req, resApp) {
 
                 if (userInfo.nsdaMemberNumber.includes('Upcoming Tournaments')) {
                     // token out of date
+                    resApp.status(403)
+                    resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
                 }
 
                 userInfo.nsdaPoints = $($($('#content .main').children('div')[0]).children('span')[1]).children('div')[1].children.find(child => child.type == 'text').data.trim().replace(/\D/g, '')
@@ -374,6 +397,12 @@ app.get('/me/future', (req, resApp) => {
         .end((err, res) => {
             var $ = cheerio.load(res.text)
 
+            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
+                resApp.status(403)
+                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                return;
+            }
+
             var futureList = []
             var futureTournament = null
 
@@ -410,7 +439,8 @@ app.get('/me/future', (req, resApp) => {
 
                 futureList.push(futureTournament)
             }
-            if (futureList === []) {
+
+            if (futureList.length === 0) {
                 resApp.sendStatus(204)
                 // resApp.send('No future entries')
             } else {
