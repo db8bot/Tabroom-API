@@ -91,6 +91,10 @@ app.get('/me', async function (req, resApp) {
 
                 userInfo.nsdaMemberNumber = $($($('#content .main').children('div')[0]).children('span')[0]).text().trim().replace(/Member/g, '').replace(/#/g, '').trim()
 
+                if (userInfo.nsdaMemberNumber.includes('Upcoming Tournaments')) {
+                    // token out of date
+                }
+
                 userInfo.nsdaPoints = $($($('#content .main').children('div')[0]).children('span')[1]).children('div')[1].children.find(child => child.type == 'text').data.trim().replace(/\D/g, '')
 
                 userInfo.districtTournament = ($($($('#content .main').children('div')[0]).children('span')[1]).children('div')[2].children.find(child => child.type == 'text').data.trim().replace(/\t/g, "").replace(/\n/g, " ").toLowerCase().includes('you are eligible') ? userInfo.districtTournament = true : userInfo.districtTournament = false)
