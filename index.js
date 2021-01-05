@@ -450,6 +450,22 @@ app.get('/me/future', (req, resApp) => {
 
 })
 
+app.get('/me/current', (req, resApp) => {
+    console.log(req.body)
+    superagent
+        .get('https://www.tabroom.com/user/student/index.mhtml?default=current')
+        .set("Cookie", req.body.token)
+        .redirects(0)
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+
+            //loop has to be bottom of table to top for accurate chronological order
+            // array
+            // for tab to wiki entry matching: json file with entry school names with wiki links - if school name on tab = school name on wiki, the json entry is ""
+        })
+
+
+})
 
 
 app.get('/paradigm', (req, resApp) => {
