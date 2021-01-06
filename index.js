@@ -3,6 +3,7 @@ const { response } = require('express');
 const cheerio = require('cheerio');
 const superagent = require('superagent');
 const apiKey = require('./apiKeys.json')
+const fs = require('fs')
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 var app = express()
@@ -450,8 +451,7 @@ app.get('/me/future', (req, resApp) => {
 
 })
 
-app.get('/me/current', (req, resApp) => {
-    console.log(req.body)
+app.get('/me/current', (req, resApp) => { // docs - input token & api auth
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml?default=current')
         .set("Cookie", req.body.token)
@@ -459,9 +459,63 @@ app.get('/me/current', (req, resApp) => {
         .end((err, res) => {
             var $ = cheerio.load(res.text)
 
-            //loop has to be bottom of table to top for accurate chronological order
-            // array
-            // for tab to wiki entry matching: json file with entry school names with wiki links - if school name on tab = school name on wiki, the json entry is ""
+            /** Dev
+             * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
+             */
+
+            if ($('.screens.current').children().length === 1) { // no current entries
+                resApp.sendStatus(204)
+            } else if ($('.screens.current').children().length > 1) {
+                var currentEntries = []
+                var basicInfo = {
+                    "tournamentName": null,
+                    "event": null,
+                    "code": null
+                }
+                var roundInfo = null
+
+                basicInfo.tournamentName = $($($('.screens.current').children('div')[0]).children('span')[0]).text().trim()
+                basicInfo.event = $($($('.screens.current').children('div')[0]).children('span')[1]).text().trim()
+                basicInfo.code = $($($('.screens.current').children('div')[0]).children('span')[2]).text().trim().replace('Code: ', "")
+
+                currentEntries.push(basicInfo)
+
+                for (i = $($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
+                    roundInfo = {
+                        "roundNum": null,
+                        "startTime": null,
+                        "startTimeUnix": null,
+                        "room": null, // post x-www-url-encoded with key
+                        "side": null,
+                        "oppoent": null,
+                        "judge": null,
+                        "paradigmLink": null,
+                        "results": null
+                    }
+
+                    roundInfo.roundNum = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[0]).text().trim()
+
+                    roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
+                    let today = new Date()
+                    roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + $($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().substring($($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().indexOf(' ')))
+
+                    if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
+                        roundInfo.room = 'Jitsi Meet/NSDA Campus'
+                    } else {
+                        roundInfo.room = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                    }
+
+                    roundInfo.side = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[3]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                    roundInfo.oppoent = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[4]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                    roundInfo.judge = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span')[0].attribs.title
+                    roundInfo.paradigmLink = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
+
+                    currentEntries.push(roundInfo)
+                }
+
+                resApp.send(currentEntries)
+            }
+
         })
 
 
@@ -659,6 +713,44 @@ app.get('/upcoming', (req, resApp) => {
         })
 })
 
+
+app.get('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
+    
+    superagent
+        .get(req.body.eventLink)
+        .redirects(0)
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+
+            var entryRequestLink = "https://www.tabroom.com" + $('#tabnav > li:nth-child(2) > a')[0].attribs.href + "&event_id=" + req.body.eventLink.substring(req.body.eventLink.indexOf('event_id=') + 9)
+
+            superagent
+                .get(entryRequestLink)
+                .redirects(0)
+                .end((err, resSecond) => {
+                    var $ = cheerio.load(resSecond.text)
+
+                    for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
+
+                        if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
+                            resApp.send({
+                                "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
+                                "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
+                                "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
+                                "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+                            })
+                            return;
+                        }
+
+                    }
+                    resApp.status(404)
+                    resApp.send(`Entry not found.`)
+                })
+
+        })
+
+})
 
 
 
