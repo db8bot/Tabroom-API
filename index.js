@@ -452,6 +452,12 @@ app.get('/me/future', (req, resApp) => {
 })
 
 app.get('/me/current', (req, resApp) => { // docs - input token & api auth
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml?default=current')
         .set("Cookie", req.body.token)
@@ -715,7 +721,12 @@ app.get('/upcoming', (req, resApp) => {
 
 
 app.get('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
-    
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
     superagent
         .get(req.body.eventLink)
         .redirects(0)
