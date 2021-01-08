@@ -463,8 +463,8 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            var $ = cheerio.load(res.text)
-
+            // var $ = cheerio.load(res.text)
+            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
             /** Dev
              * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
              */
@@ -502,9 +502,10 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
                     roundInfo.roundNum = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[0]).text().trim()
 
                     roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
+                    
                     let today = new Date()
-                    // Date.parse(asdf.toDateString() + " " + "7:00 AM PDT")
-                    roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + $($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().substring($($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().indexOf(' ')))
+                    var splitTimeArr = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").split('\n')
+                    roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' '))
 
                     if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
                         roundInfo.room = 'Jitsi Meet/NSDA Campus'
