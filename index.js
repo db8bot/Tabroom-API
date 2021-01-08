@@ -463,8 +463,8 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            // var $ = cheerio.load(res.text)
-            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
+            var $ = cheerio.load(res.text)
+            
             /** Dev
              * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
              */
