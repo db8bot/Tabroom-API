@@ -503,6 +503,7 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
 
                     roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
                     let today = new Date()
+                    // Date.parse(asdf.toDateString() + " " + "7:00 AM PDT")
                     roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + $($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().substring($($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).children('div')[0]).text().trim().indexOf(' ')))
 
                     if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
