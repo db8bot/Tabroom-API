@@ -392,7 +392,7 @@ app.get('/me/future', (req, resApp) => {
     }
 
     superagent
-        .get('https://www.tabroom.com/user/student/index.mhtml')
+        .get('https://www.tabroom.com/user/student/index.mhtml?default=future')
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
@@ -464,7 +464,7 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
         .redirects(0)
         .end((err, res) => {
             var $ = cheerio.load(res.text)
-            
+
             /** Dev
              * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
              */
@@ -486,6 +486,18 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
 
                 currentEntries.push(basicInfo)
 
+                // make request to gt tournament start date
+                superagent
+                    .get(`https://www.tabroom.com/user/student/index.mhtml?default=future`)
+                    .set("Cookie", req.body.token)
+                    .redirects(0)
+                    .end((err, resFuture) => {
+                        var 
+                        superagent
+                            .get
+                    })
+
+
                 for (i = $($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
                     roundInfo = {
                         "roundNum": null,
@@ -502,7 +514,9 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
                     roundInfo.roundNum = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[0]).text().trim()
 
                     roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
-                    
+
+
+
                     let today = new Date()
                     var splitTimeArr = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").split('\n')
                     roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' '))
