@@ -5,7 +5,8 @@ const superagent = require('superagent');
 const apiKey = require('./apiKeys.json')
 const fs = require('fs')
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
+const { fileURLToPath } = require('url');
 var app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -492,48 +493,72 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
                     .set("Cookie", req.body.token)
                     .redirects(0)
                     .end((err, resFuture) => {
-                        var 
+                        let futureTourn = cheerio.load(resFuture.text)
+                        var timeArray = []
+                        var eventLink = ""
+                        for (i = 0; i < futureTourn('#upcoming').children('tbody').children('tr').length; i++) {
+                            timeArray.push(Date.parse(futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()))
+                        }
+                        timeArray.sort((a, b) => a - b)
+                        for (i = 0; i < timeArray.length; i++) {
+                            if (Date.parse(futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()) === timeArray[0]) {
+                                eventLink = "https://www.tabroom.com" + futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href
+                                break;
+                            }
+                        }
+                        console.log(eventLink)
                         superagent
-                            .get
+                            .get(eventLink)
+                            // .redirects(0)
+                            .end((err, resEvent) => {
+                                // console.log(resEvent.text)
+                                var tournamentPage = cheerio.load(resEvent.text)
+                                // console.log(tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[2]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0])
+                                // console.log(  )
+                                var tournamentStart = new Date(tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[1]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0] + " " + tournamentPage(tournamentPage('.main').children('h5')[0]).text().trim()) // tournamentPage(tournamentPage(tournamentPage('.menu').children('div')[2]).children('span')[1]).text().trim().replace('Times in ', "")
+
+                                for (i = $($('.full.nospace.martopmore', '.screens.current')[0].children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
+                                    roundInfo = {
+                                        "roundNum": null,
+                                        "startTime": null,
+                                        "startTimeUnix": null,
+                                        "room": null, // post x-www-url-encoded with key
+                                        "side": null,
+                                        "oppoent": null,
+                                        "judge": null,
+                                        "paradigmLink": null,
+                                        "results": null
+                                    }
+
+                                    roundInfo.roundNum = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[0]).text().trim()
+
+                                    roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
+
+                                    console.log(roundInfo.startTime)
+                                    console.log(tournamentStart)
+
+                                    let today = new Date()
+                                    var splitTimeArr = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").split('\n')
+                                    roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' '))
+
+                                    if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
+                                        roundInfo.room = 'Jitsi Meet/NSDA Campus'
+                                    } else {
+                                        roundInfo.room = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                                    }
+
+                                    roundInfo.side = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[3]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                                    roundInfo.oppoent = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[4]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
+                                    roundInfo.judge = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span')[0].attribs.title
+                                    roundInfo.paradigmLink = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
+
+                                    currentEntries.push(roundInfo)
+                                }
+
+                            })
                     })
 
 
-                for (i = $($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
-                    roundInfo = {
-                        "roundNum": null,
-                        "startTime": null,
-                        "startTimeUnix": null,
-                        "room": null, // post x-www-url-encoded with key
-                        "side": null,
-                        "oppoent": null,
-                        "judge": null,
-                        "paradigmLink": null,
-                        "results": null
-                    }
-
-                    roundInfo.roundNum = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[0]).text().trim()
-
-                    roundInfo.startTime = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").replace(/\n/g, " ")
-
-
-
-                    let today = new Date()
-                    var splitTimeArr = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").split('\n')
-                    roundInfo.startTimeUnix = Date.parse(today.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' '))
-
-                    if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
-                        roundInfo.room = 'Jitsi Meet/NSDA Campus'
-                    } else {
-                        roundInfo.room = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
-                    }
-
-                    roundInfo.side = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[3]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
-                    roundInfo.oppoent = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[4]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
-                    roundInfo.judge = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span')[0].attribs.title
-                    roundInfo.paradigmLink = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
-
-                    currentEntries.push(roundInfo)
-                }
 
                 resApp.send(currentEntries)
             }
