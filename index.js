@@ -514,10 +514,10 @@ app.get('/me/current', (req, resApp) => { // docs - input token & api auth
                                 // console.log(resEvent.text)
                                 var tournamentPage = cheerio.load(resEvent.text)
                                 // console.log(tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[2]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0])
-                                // console.log(  )
-                                var tournamentStart = new Date(tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[1]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0] + " " + tournamentPage(tournamentPage('.main').children('h5')[0]).text().trim()) // tournamentPage(tournamentPage(tournamentPage('.menu').children('div')[2]).children('span')[1]).text().trim().replace('Times in ', "")
+                                // console.log( tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[1]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0].replace(/\t/g, "").replace(/\n/g, "") + " " + tournamentPage(tournamentPage('.main').children('h5')[0]).text().trim().replace(/\t/g, "").replace(/\n/g, "").substring(0,4) )
+                                var tournamentStart = new Date(tournamentPage(tournamentPage(tournamentPage(tournamentPage(tournamentPage('#content').children('div')[1]).children('div')[1]).children('div')[0]).children('span')[1]).text().trim().split(' ')[0].replace(/\t/g, "").replace(/\n/g, "") + " " + tournamentPage(tournamentPage('.main').children('h5')[0]).text().trim().replace(/\t/g, "").replace(/\n/g, "").substring(0,4)) // tournamentPage(tournamentPage(tournamentPage('.menu').children('div')[2]).children('span')[1]).text().trim().replace('Times in ', "")
 
-                                for (i = $($('.full.nospace.martopmore', '.screens.current')[0].children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
+                                for (i = $($($('.full.nospace.martopmore', '.screens.current')[0]).children('table')[0]).children('tbody').children().length - 1; i >= 0; i--) { // i = 3 -> i=1 its a backwards loop
                                     roundInfo = {
                                         "roundNum": null,
                                         "startTime": null,
