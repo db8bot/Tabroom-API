@@ -629,7 +629,10 @@ app.get('/paradigm', (req, resApp) => {
                     return;
                 }
 
-                for (i = 0; i < $('#record').children('tbody').children('tr').length; i++) {
+                // round judged limit to 170 rounds
+                var roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+
+                for (i = 0; i < roundJudgedLen; i++) {
                     roundJudgedInfo = {
                         "tournament": "",
                         "date": "",
@@ -683,7 +686,16 @@ app.get('/paradigm', (req, resApp) => {
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
                 judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
-                for (i = 0; i < $('#record').children('tbody').children('tr').length; i++) {
+
+                if (req.body.short == 'true') {
+                    resApp.send(judgeRecord)
+                    return;
+                }
+
+                // round judged limit to 170 rounds
+                var roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+
+                for (i = 0; i < roundJudgedLen; i++) {
                     roundJudgedInfo = {
                         "tournament": "",
                         "date": "",
