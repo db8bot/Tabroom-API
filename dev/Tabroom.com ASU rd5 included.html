@@ -1,0 +1,2415 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0058)https://www.tabroom.com/user/student/index.mhtml?err=&msg= -->
+<html><script async="" src="./Tabroom.com ASU rd5 included_files/analytics.js"></script><script type="text/javascript" class="__REQUESTLY__SCRIPT">(function(namespace) {
+  window[namespace] = window[namespace] || {};
+  window[namespace].responseRules = {};
+
+  let open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method) {
+    this.addEventListener('readystatechange', function() {
+      if (this.readyState === 4 && window[namespace].responseRules.hasOwnProperty(this.responseURL)) {
+        const responseRule = window[namespace].responseRules[this.responseURL];
+        const {response, id} = responseRule;
+        const responseType = this.responseType;
+        let customResponse;
+
+        customResponse = response.type === 'code' ? responseRule.evaluator({
+            method,
+            url: this.responseURL,
+            requestHeaders: this.requestHeaders,
+            requestData: this.requestData,
+            responseType: this.responseType,
+            response: this.response
+          }) : response.value;
+
+        Object.defineProperty(this, 'response', {
+          get: function () {
+            if (response.type === 'static' && responseType === 'json') {
+              return JSON.parse(customResponse);
+            }
+            return customResponse;
+          }
+        });
+
+        if (responseType === '' || responseType === 'text') {
+          Object.defineProperty(this, 'responseText', {
+            get: function () {
+              return customResponse;
+            }
+          });
+        }
+
+        window.postMessage({
+          from: 'requestly',
+          type: 'response_rule_applied',
+          id
+        }, window.location.href);
+      }
+    }, false);
+    open.apply(this, arguments);
+  };
+
+  let send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function(data) {
+    this.requestData = data;
+    send.apply(this, arguments);
+  };
+
+  let setRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+  XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
+    this.requestHeaders = this.requestHeaders || {};
+    this.requestHeaders[header] = value;
+    setRequestHeader.apply(this, arguments);
+  }
+})('__REQUESTLY__')</script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style data-merge-styles="true"></style>
+
+	
+
+		
+
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/reset.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/jqueryui.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/uniform.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/fonts.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/alertify.min.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/alertify-bootstrap.min.css">
+			<link rel="stylesheet" type="text/css" href="./Tabroom.com ASU rd5 included_files/tabroom.css">
+
+
+
+
+
+			<title>
+				  Tabroom.com
+			</title>
+
+				<script type="text/javascript" src="./Tabroom.com ASU rd5 included_files/tabroom.min.js"></script>
+
+			<script type="text/javascript" src="./Tabroom.com ASU rd5 included_files/tinymce.min.js"></script>
+
+			<script>
+
+				$(".alert").on('click', function(e){
+					e.preventDefault();
+					var href = this.href;
+					alertify.confirm("Are you sure?", function (e) {
+						if (e) {
+							window.location.href = href;
+						}
+					});
+				});
+
+				$(document).ready(function(){
+
+					// adds zebra striping to elements.  in
+					// web/lib/javascript/tabroom.js
+					zebraRows();
+
+					// put the focus on the first editable element.
+					$('*:input:enabled:visible:not(.notfirst):first').focus();
+					$('.starthere').focus();
+
+					// Adds the searchable select menus to eligible elements
+					$("select:not(.plain)").chosen({
+						no_results_text: "Oops, nothing found!",
+						disable_search_threshold: 5
+					});
+
+					// Fixes the bug where selects in hidden divs would have
+					// zero width.
+
+					$(".chosen-container").each(function(i, chosenOne) {
+						if ($(chosenOne).width() == 0) {
+							$(chosenOne).width("100%");
+						}
+					});
+
+					// Control-s gives you the search box
+					Mousetrap.bind('mod+s', function(e) {
+						$('#searchtext').focus();
+						return false;
+					});
+
+					// Sets up the little arrows to close and open the sidebars
+
+					$(".menu").prepend("<div class='shade openshade fa fa-forward'></div>");
+
+					$("#content").prepend("<div class='hidden shade closedshade fa fa-backward'></div>");
+
+					$(".shade").click( function() {
+						$(".menu").toggleClass("hidden");
+						$(".closedshade").toggleClass("hidden");
+						$(".main").toggleClass("mainfull");
+					});
+
+				});
+
+			<!-- This displays errors in a growl-like interface on the right when present. -->
+
+			$(document).ready(function() {
+
+				alertify.set('notifier','position', 'bottom-left');
+				alertify.defaults.transition = "slide";
+				alertify.defaults.theme.ok = "btn btn-primary";
+				alertify.defaults.theme.cancel = "btn btn-danger";
+				alertify.defaults.theme.input = "form-control";
+
+
+
+
+
+
+
+
+
+			});
+			</script>
+
+				<script>
+					  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+					  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+					  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+					  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+					  ga('create', 'UA-43754389-1', 'tabroom.com');
+					  ga('send', 'pageview');
+				</script>
+
+
+			<meta property="og:image" content="http://www.tabroom.com/lib/images/nsda-blue.png">
+
+	<style>body.tablesorter-disableSelection { -ms-user-select: none; -moz-user-select: -moz-none;-khtml-user-select: none; -webkit-user-select: none; user-select: none; }.tablesorter-resizable-container { position: relative; height: 1px; }.tablesorter-resizable-handle { position: absolute; display: inline-block; width: 8px;top: 1px; cursor: ew-resize; z-index: 3; user-select: none; -moz-user-select: none; }</style></head>
+
+	<body data-new-gr-c-s-check-loaded="14.991.0" data-gr-ext-installed="">
+
+	<div id="overlay">
+
+		<div id="header">
+
+			<span id="logo">
+
+				<span class="headline">
+
+					<span id="sparky">
+						<img src="./Tabroom.com ASU rd5 included_files/sparky.png" alt="National Speech and Debate Association">
+					</span>
+
+					<span id="sparked">
+						<a tabindex="-1" href="https://www.tabroom.com/index/index.mhtml">
+							Tabroom.com
+						</a>
+					</span>
+				</span>
+
+				<span class="nsda">
+
+					<span class="blurb">
+						a project of the
+					</span>
+
+					<span class="nsdalogo">
+
+						<a tabindex="-1" href="http://www.speechanddebate.org/">
+
+							<img src="./Tabroom.com ASU rd5 included_files/nsda-header-logo.png" alt="National Speech and Debate Association">
+						</a>
+
+					</span>
+				</span>
+			</span>
+
+			<span id="toprow">
+
+
+
+						<a tabindex="-1" href="https://www.tabroom.com/user/login/logout.mhtml">
+							Logout
+						</a>
+
+						<a tabindex="-1" href="https://www.tabroom.com/user/login/profile.mhtml">
+							Profile
+						</a>
+
+
+					<a tabindex="-1" href="https://www.tabroom.com/user/home.mhtml">
+							yfang@college-prep.org
+					</a>
+
+
+
+					<span id="search" title="Search for tournaments">
+
+						<form action="https://www.tabroom.com/index/search.mhtml" _lpchecked="1">
+
+						<input type="text" maxlength="128" size="15" name="search" placeholder="SEARCH TOURNAMENTS" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="searchtext" class="notfirst" tabindex="-1">
+
+						<input type="hidden" name="caller" value="/user/student/index.mhtml?err=&amp;msg=">
+
+						<button type="submit" class="search notfirst">
+
+							<img src="./Tabroom.com ASU rd5 included_files/search.png">
+						</button>
+
+						</form>
+					</span>
+
+
+				<span id="helpbutton" title="Tabroom Help">
+					<a tabindex="-1" href="http://docs.tabroom.com/" target="_blank" class="fa fa-question-circle">
+
+					</a>
+				</span>
+
+			</span>
+
+			<span id="menus">
+
+
+					
+	<ul id="nav">
+
+		<li class="top">
+
+			<a class="centeralign top_link" href="https://www.tabroom.com/">
+				<span class="down">
+					Home
+				</span>
+			</a>
+
+		</li>
+
+		<li class="top">
+
+			<a class="centeralign top_link" href="https://www.tabroom.com/index/circuits.mhtml">
+				<span class="down">
+					Circuits
+				</span>
+			</a>
+
+		</li>
+
+		<li class="top">
+
+			<a class="centeralign top_link" href="https://www.tabroom.com/index/results/">
+				<span class="down">
+					Results
+				</span>
+			</a>
+
+		</li>
+
+		<li class="top">
+			<a class="centeralign top_link" href="https://www.tabroom.com/index/paradigm.mhtml">
+				<span class="down">
+					Paradigms
+				</span>
+			</a>
+		</li>
+
+		<li class="top">
+			<a class="centeralign top_link" href="https://www.tabroom.com/index/help.mhtml">
+				<span class="down">
+					Help
+				</span>
+			</a>
+		</li>
+
+		<li class="top">
+			<a class="centeralign top_link" href="https://www.tabroom.com/index/about.mhtml">
+				<span class="down">
+					About
+				</span>
+			</a>
+		</li>
+
+	</ul>
+
+
+
+
+			<span>
+
+		</span></span></div>
+
+
+
+	<div id="wrapper">
+
+		<div id="content"><div class="hidden shade closedshade fa fa-backward"></div>
+
+	
+		<div class="menu"><div class="shade openshade fa fa-forward"></div>
+
+		<div class="sidenote">
+
+
+
+				<h4>
+					Tournaments
+				</h4>
+
+
+				<a class="martop-half blue full" href="https://www.tabroom.com/user/tourn/all.mhtml">
+					Past Tournaments
+				</a>
+
+		</div>
+
+
+		<div class="sidenote">
+
+			<h4>
+				Judging
+			</h4>
+
+
+
+
+
+			<a class="blue half" href="https://www.tabroom.com/user/judge/conflicts.mhtml">
+				Standing Conflicts
+			</a>
+
+			<a class="blue half" href="https://www.tabroom.com/user/judge/paradigm.mhtml">
+				Paradigm
+			</a>
+
+				<a class="blue full" href="https://www.tabroom.com/user/judge/hire.mhtml?person_id=185947">
+					Offer Hired Judging Rounds
+				</a>
+		</div>
+
+
+
+			<div class="sidenote">
+
+				<h4>
+					Competing
+				</h4>
+
+				<a class="dkblue full" href="https://www.tabroom.com/user/student/index.mhtml?person_id=185947">
+					Entries
+				</a>
+
+				<a class="blue full" href="https://www.tabroom.com/user/student/conflicts.mhtml">
+					Standing Conflicts
+				</a>
+
+				<a class="blue full" href="https://www.tabroom.com/user/student/parents.mhtml">
+					Parent Notifications
+				</a>
+
+			</div>
+
+		<div class="sidenote">
+
+			<h4>NSDA Campus Test Rooms</h4>
+
+			<div class="row even" title="This online room is on the NSDA Campus server.  It will disconnect you after 2 mins.">
+				<span class="twothirds semibold bluetext nospace">
+					<span class="halfspace"></span>
+					Test Competition Room
+				</span>
+
+				<span class="third centeralign">
+					
+		<form id="meet_" action="https://campus.speechanddebate.org/" method="post" target="_blank">
+
+			<input name="json" type="hidden" value="eyJhbGciOiJIUzI1NiJ9.eyJtb2RlIjoibnNkYV9wcml2YXRlIiwicGFuZWxfdHlwZSI6InRlc3RfcHJpdmF0ZSIsInNlcnZlciI6InByaXZhdGUiLCJyb2xlIjoiY29tcGV0aXRvciIsInN1cHBvcnRFbWFpbCI6ImluZm9Ac3BlZWNoYW5kZGViYXRlLm9yZyIsImZvcmNlQ2xvc2UiOiJ0cnVlIiwicGFuZWxfaWQiOm51bGwsImRpc3BsYXlOYW1lIjoiSmltIEZhbmciLCJyb29tTmFtZSI6IkNvbGxlZ2UgUHJlcCBDb21wZXRpdGlvbiBSb29tIFRlc3QiLCJyb29tSW5zdHJ1Y3Rpb25zIjoiVGhpcyBpcyBhIHRlc3Qgb2YgYW4gTlNEQSBDYW1wdXMgQ29tcGV0aXRpb24gUm9vbSAtIHRoaXMgcm9vbSBpcyBOT1QgcHJpdmF0ZS4iLCJ1dWlkIjoiQ29sbGVnZVByZXAifQ.P1CX6PIJu_Se6Jv9gB21KBWhbeAf2AQluDlq169AhzI">
+
+			<button type="button" target_id="" property_name="" setting_name="test_private" related_thing="College Prep Competition Room Test" tourn_id="" class="invert fa fa-video-camera fa-sm buttonwhite bluetext marno notfirst" onclick="postSwitch(this, &#39;/user/campus/room_log.mhtml&#39;); this.form.submit();"></button>
+
+		</form>
+
+
+				</span>
+			</div>
+
+			<div class="row odd" title="This online room is on the Jitsi public server.  It will disconnect you after 2 mins.">
+				<span class="twothirds semibold bluetext nospace">
+					<span class="halfspace"></span>
+					Test Practice/Utility Room
+				</span>
+
+				<span class="third centeralign">
+					
+		<form id="meet_" action="https://campus.speechanddebate.org/" method="post" target="_blank">
+
+			<input name="json" type="hidden" value="eyJhbGciOiJIUzI1NiJ9.eyJyb29tSW5zdHJ1Y3Rpb25zIjoiVGhpcyBpcyBhIHRlc3Qgb2YgYW4gTlNEQSBDYW1wdXMgUHJhY3RpY2UgUm9vbSAtIHRoaXMgcm9vbSBpcyBOT1QgcHJpdmF0ZS4iLCJyb29tTmFtZSI6IkNvbGxlZ2UgUHJlcCBQcmFjdGljZSBSb29tIFRlc3QiLCJkaXNwbGF5TmFtZSI6IkppbSBGYW5nIiwicGFuZWxfaWQiOm51bGwsInV1aWQiOiJDb2xsZWdlUHJlcC1QcmFjdGljZSIsInBhbmVsX3R5cGUiOiJ0ZXN0X3B1YmxpYyIsIm1vZGUiOiJuc2RhX3ByaXZhdGUiLCJmb3JjZUNsb3NlIjoidHJ1ZSIsInN1cHBvcnRFbWFpbCI6ImluZm9Ac3BlZWNoYW5kZGViYXRlLm9yZyIsInJvbGUiOiJjb21wZXRpdG9yIiwic2VydmVyIjoicHVibGljIn0.6XxOxetNYXbVlt-jXCseajjxtCSLey4jVvPTZYoewgY">
+
+			<button type="button" target_id="" property_name="" setting_name="test_public" related_thing="College Prep Practice Room Test" tourn_id="" class="invert fa fa-video-camera fa-sm buttonwhite bluetext marno notfirst" onclick="postSwitch(this, &#39;/user/campus/room_log.mhtml&#39;); this.form.submit();"></button>
+
+		</form>
+
+
+				</span>
+			</div>
+
+			<h4>Your Account</h4>
+
+			<a class="yellow full" href="https://www.tabroom.com/user/unfollow.mhtml">
+				Edit Live Updates/Parent Memos
+			</a>
+
+			<a class="yellow full" href="https://www.tabroom.com/user/chapter/create.mhtml">
+				Create a new school/team
+			</a>
+
+			<a class="yellow full" href="https://www.tabroom.com/user/tourn/request.mhtml">
+				Request a new tournament
+			</a>
+
+			<a class="yellow full" href="https://www.tabroom.com/user/judge/search.mhtml">
+				Link your account to a judge
+			</a>
+
+			<a class="yellow full" href="https://www.tabroom.com/user/student/search.mhtml">
+				Link your account to a competitor
+			</a>
+
+		</div>
+
+		</div>
+
+
+
+	<div class="main">
+
+		<span class="threefifths nospace">
+			<h3>
+				Jim Fang
+			</h3>
+		</span>
+
+		<span class="twofifths rightalign nospace">
+			<h4>
+				Competitor Records
+			</h4>
+		</span>
+
+		
+	<script>
+        function updateTab(input) {
+			$(".tabs").removeClass("selected");
+			$(".tabs").removeClass("invert");
+			$(".screens").addClass("hidden");
+
+			if (input) {
+				$("#"+input).addClass("selected");
+				$("#"+input).addClass("invert");
+				$("."+input).removeClass("hidden");
+			}
+
+			zebraRows();
+			$("table").trigger("update");
+			$("table").trigger("applyWidgets");
+
+			$("select:not(.plain)").chosen({
+				no_results_text: "Oops, nothing found!",
+				disable_search_threshold: 10
+			});
+
+			
+			return;
+		}
+
+		$(document).ready(function() {
+			updateTab("current");
+			window.scrollTo(0,0);
+		});
+	</script>
+
+
+		<ul id="tabnav" class="marbottom
+				
+				
+				
+			">
+
+
+					<li id="current" class="tabs selected invert" onclick="updateTab(&#39;current&#39;)">
+						Current
+					</li>
+
+					<li id="future" class="tabs" onclick="updateTab(&#39;future&#39;)">
+						Future
+					</li>
+
+					<li id="results" class="tabs" onclick="updateTab(&#39;results&#39;)">
+						Results
+					</li>
+					<li id="NSDA" class="tabs" onclick="location.href=&#39;nsda.mhtml&#39;;">
+						NSDA
+					
+
+
+		</li></ul>
+
+
+
+		<div class="screens current">
+
+			<h4 class="bluetext martopmore">
+				Current Entries
+			</h4>
+
+					
+	<div class="full nospace marbottommore padtopmore padbottom ltborderbottom">
+		<span class="threefifths nospace">
+			<h5 class="bluetext semibold inline">
+				Arizona State HDSHC Invitational
+			</h5>
+		</span>
+
+		<span class="fifth nospace redtext semibold biggish rightalign">
+			Varsity Policy
+		</span>
+
+		<span class="fifth nospace bluetext semibold biggish rightalign">
+			Code: College Prep FV
+		</span>
+	</div>
+
+
+			<p class="semibold redtext">
+				Online Spaces
+			</p>
+
+			<div class="ltbordervert odd centeralign">
+
+				<span class="third leftalign">
+					<span class="threequarters semibold bluetext">
+						<span class="halfspace"></span>
+						College Prep Squad Room
+					</span>
+
+					<span class=" centeralign padvert nospace">
+						
+		<form id="meet_393034" action="https://campus.speechanddebate.org/" method="post" target="_blank">
+
+			<input name="json" type="hidden" value="eyJhbGciOiJIUzI1NiJ9.eyJzZXJ2ZXIiOiJwdWJsaWMiLCJ0b3Vybl9pZCI6MTg0MTksInBhbmVsX3R5cGUiOiJzY2hvb2wiLCJtb2RlIjoibnNkYV9qaXRzaSIsInV1aWQiOiI4NjEyNjIyNjI3YzJjYmEzMmNlMjg2ODk3MjFmN2U5MyIsInBhbmVsX2lkIjoiMzkzMDM0IiwiZGlzcGxheU5hbWUiOiJKaW0gRmFuZyIsInJvb21OYW1lIjoiQ29sbGVnZSBQcmVwIFNxdWFkIFJvb20ifQ.ogQHQZXSGQ_ImpL_df2g0WPblYuPunAXOeOnygnImo4">
+
+			<button type="button" target_id="393034" property_name="" setting_name="school" related_thing="College Prep Squad Room" tourn_id="18419" class="invert fa fa-video-camera fa buttonwhite bluetext marno notfirst" onclick="postSwitch(this, &#39;/user/campus/room_log.mhtml&#39;); this.form.submit();"></button>
+
+		</form>
+
+
+					</span>
+				</span>
+
+
+			</div>
+
+
+
+	
+	<script type="text/javascript">
+
+        $(document).ready(function() {
+
+			$("#3256260").tablesorter({
+				cssAsc      : "sortup",
+				cssDesc     : "sortdown",
+				cssHeader   : "sortable",
+				widgets     : ['zebra', 'columns', 'stickyHeaders', 'print', 'output'],
+				initialized : function(table) {
+					// Tablesorter disrupts the focus auto feature inside itself.  This works around.
+					$(".focushere").focus();
+				},
+				widgetOptions : {
+					columns          : [ "primary", "secondary", "tertiary" ],
+					print_rows       : "f",
+					print_columns    : "v",
+					print_now        : true,
+					print_styleSheet : "/lib/css/print.css",
+					output_saveRows  : "visible",
+					output_delivery  : "download"
+				}
+			});
+
+
+
+			$("#3256260_buttonarea").addClass("martop");
+
+		});
+
+	</script>
+
+
+
+
+		<div class="full nospace martopmore">
+
+		<table id="3256260" class="tablesorter tablesorter-default tablesorter7e8d8450c77b5 hasStickyHeaders" role="grid">
+			<thead>
+				<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Round: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+						Round
+					</div></th>
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Start: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+						Start
+					</div></th>
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Room: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+						Room
+					</div></th>
+
+						<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Side: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+							Side
+						</div></th>
+
+						<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Opponent: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+							Opponent
+						</div></th>
+
+					<th class="smallish nosort tablesorter-header sortable tablesorter-headerUnSorted" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Judges
+						
+						
+							Results/Comments: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+						<span class="threesevenths">
+							Judges
+						</span>
+						<span class="threesevenths padleft">
+							Results/Comments
+						</span>
+					</div></th>
+				</tr>
+			</thead>
+
+			<tbody aria-live="polite" aria-relevant="all">
+				<tr class="row odd" role="row">
+
+					<td class="smallish centeralign">
+						Round 5
+					</td>
+
+					<td class="smallish leftalign">
+						<span class="rightalign" style="min-width: 75%;">
+
+							<div class="nospace padvertless">
+								Sat 11:00 AM
+								PST
+							</div>
+
+							<div class="nospace padvertless">
+								12:00 PM
+								MST
+							</div>
+
+						</span>
+					</td>
+
+					<td class="centeralign nospace padvertless limit3">
+
+							
+		<form id="meet_4887663" action="https://campus.speechanddebate.org/" method="post" target="_blank">
+
+			<input name="json" type="hidden" value="eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiY29tcGV0aXRvciIsInN1cHBvcnRFbWFpbCI6Imhkc2hjZm9yZW5zaWNzQGdtYWlsLmNvbSIsInNlcnZlciI6InVzLXdlc3QtMiIsInBhbmVsX3R5cGUiOiJwYW5lbCIsInR6IjoiQW1lcmljYS9QaG9lbml4Iiwicm9vbU5hbWUiOiJWQ1ggMjEiLCJldmVudF9pZCI6MTU2NDU0LCJwYW5lbF9pZCI6IjQ4ODc2NjMiLCJzb3VyY2UiOiJ0YWJyb29tIiwiZW50cnlfZmlyc3QiOiJKaW0iLCJ0b3Vybl9pZCI6MTg0MTksImVudHJ5X25hbWUiOiJKaW0gRmFuZyIsIm1vZGUiOiJuc2RhX3ByaXZhdGUiLCJwZXJzb25faWQiOjE4NTk0Nywib2JqZWN0X2lkIjoiZW50cnktMzI1NjI2MCIsInV1aWQiOiIwNThmY2UwOGQ5MzFhYjA5OGU2ZTA1NWMxMDI3NDIxMyIsImVudHJ5X2NvZGUiOiJDb2xsZWdlIFByZXAgRlYiLCJyb29tSW5zdHJ1Y3Rpb25zIjoiZW1haWwgY29uY2VybnMsIHByb2JsZW1zLCBjb21tZW50cyB0byB0aGlzIGFkZHJlc3Mgb3IgY29ubmVjdCB3aXRoIG91ciB2aXJ0dWFsIGhlbHAgZGVzayBhdCBodHRwczovL2FzdS56b29tLnVzL2ovODM5ODAwMzI3NjQiLCJkaXNwbGF5TmFtZSI6IkNvbGxlZ2UgUHJlcCBGViJ9.5B-3aMrUcOD5gwR_QOxgGQsXEik0IJxS-v73802ydHY">
+
+			<button type="button" target_id="4887663" property_name="entry-3256260" setting_name="panel" related_thing="VCX 21" tourn_id="18419" class="invert fa fa-video-camera fa-lg buttonwhite bluetext marno notfirst" onclick="postSwitch(this, &#39;/user/campus/room_log.mhtml&#39;); this.form.submit();"></button>
+
+		</form>
+
+
+
+
+					</td>
+
+
+						<td class="smallish centeralign">
+							Aff
+
+						</td>
+
+						<td class="smallish">
+							Peninsula CW
+						</td>
+
+					<td class="smallish nospace">
+
+
+								<div class="full nospace ltborderbottom resultsmin">
+
+								<span class="full nowrap padvertless marvertno padleftless smallish" title="Middleton, Hunter">
+										<span class="fifth centeralign nospace" title="Paradigm">
+											<a class="greytext buttonwhite smaller padmuchless marno" target="_blank" href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=51092">P</a>
+										</span>
+									Middleton, Hunter
+								</span>
+
+
+							</div>
+					</td>
+				</tr>
+				<tr class="row even" role="row">
+
+					<td class="smallish centeralign">
+						Round 4
+					</td>
+
+					<td class="smallish leftalign">
+						<span class="rightalign" style="min-width: 75%;">
+
+							<div class="nospace padvertless">
+								Sat 8:00 AM
+								PST
+							</div>
+
+							<div class="nospace padvertless">
+								9:00 AM
+								MST
+							</div>
+
+						</span>
+					</td>
+
+					<td class="centeralign nospace padvertless limit3">
+								
+
+					</td>
+
+
+						<td class="smallish centeralign">
+							Aff
+
+						</td>
+
+						<td class="smallish">
+							Meadows HY
+						</td>
+
+					<td class="smallish nospace">
+
+
+								<div class="full nospace ltborderbottom resultsmin">
+
+								<span class="threesevenths nowrap padvertless marvertno padleftless smallish" title="Halverson, Will">
+										<span class="fifth centeralign nospace" title="Paradigm">
+											<a class="greytext buttonwhite smaller padmuchless marno" target="_blank" href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=236693">P</a>
+										</span>
+									Halverson, Will
+								</span>
+
+									<span class="ltborderright ltborderleft threesevenths nospace">
+
+										<span class="sixth marno semibold centeralign nospace">
+											L
+										</span>
+
+										<span class="fivesixths nospace rightalign">
+										</span>
+								</span>
+
+
+							</div>
+					</td>
+				</tr>
+				<tr class="row odd" role="row">
+
+					<td class="smallish centeralign">
+						Round 3
+					</td>
+
+					<td class="smallish leftalign">
+						<span class="rightalign" style="min-width: 75%;">
+
+							<div class="nospace padvertless">
+								Fri 3:00 PM
+								PST
+							</div>
+
+							<div class="nospace padvertless">
+								4:00 PM
+								MST
+							</div>
+
+						</span>
+					</td>
+
+					<td class="centeralign nospace padvertless limit3">
+								
+
+					</td>
+
+
+						<td class="smallish centeralign">
+							Neg
+
+						</td>
+
+						<td class="smallish">
+							Rowland Hall DK
+						</td>
+
+					<td class="smallish nospace">
+
+
+								<div class="full nospace ltborderbottom resultsmin">
+
+								<span class="threesevenths nowrap padvertless marvertno padleftless smallish" title="Reese, KJ">
+										<span class="fifth centeralign nospace" title="Paradigm">
+											<a class="greytext buttonwhite smaller padmuchless marno" target="_blank" href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=31395">P</a>
+										</span>
+									Reese, KJ
+								</span>
+
+									<span class="ltborderright ltborderleft threesevenths nospace">
+
+										<span class="sixth marno semibold centeralign nospace">
+											L
+										</span>
+
+										<span class="fivesixths nospace rightalign">
+										</span>
+								</span>
+
+
+							</div>
+					</td>
+				</tr>
+				<tr class="row even" role="row">
+
+					<td class="smallish centeralign">
+						Round 2
+					</td>
+
+					<td class="smallish leftalign">
+						<span class="rightalign" style="min-width: 75%;">
+
+							<div class="nospace padvertless">
+								Fri 12:00 PM
+								PST
+							</div>
+
+							<div class="nospace padvertless">
+								1:00 PM
+								MST
+							</div>
+
+						</span>
+					</td>
+
+					<td class="centeralign nospace padvertless limit3">
+								
+
+					</td>
+
+
+						<td class="smallish centeralign">
+							Aff
+
+						</td>
+
+						<td class="smallish">
+							Peninsula KL
+						</td>
+
+					<td class="smallish nospace">
+
+
+								<div class="full nospace ltborderbottom resultsmin">
+
+								<span class="threesevenths nowrap padvertless marvertno padleftless smallish" title="Peng, Justin">
+										<span class="fifth centeralign nospace" title="Paradigm">
+											<a class="greytext buttonwhite smaller padmuchless marno" target="_blank" href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=85616">P</a>
+										</span>
+									Peng, Justin
+								</span>
+
+									<span class="ltborderright ltborderleft threesevenths nospace">
+
+										<span class="sixth marno semibold centeralign nospace">
+											W
+										</span>
+
+										<span class="fivesixths nospace rightalign">
+										</span>
+								</span>
+
+
+							</div>
+					</td>
+				</tr>
+				<tr class="row odd" role="row">
+
+					<td class="smallish centeralign">
+						Round 1
+					</td>
+
+					<td class="smallish leftalign">
+						<span class="rightalign" style="min-width: 75%;">
+
+							<div class="nospace padvertless">
+								Fri 9:00 AM
+								PST
+							</div>
+
+							<div class="nospace padvertless">
+								10:00 AM
+								MST
+							</div>
+
+						</span>
+					</td>
+
+					<td class="centeralign nospace padvertless limit3">
+								
+
+					</td>
+
+
+						<td class="smallish centeralign">
+							Neg
+
+						</td>
+
+						<td class="smallish">
+							Advanced Technologies BB
+						</td>
+
+					<td class="smallish nospace">
+
+
+								<div class="full nospace ltborderbottom resultsmin">
+
+								<span class="threesevenths nowrap padvertless marvertno padleftless smallish" title="Trufanov, Anthony">
+										<span class="fifth centeralign nospace" title="Paradigm">
+											<a class="greytext buttonwhite smaller padmuchless marno" target="_blank" href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=15555">P</a>
+										</span>
+									Trufanov, Anthony
+								</span>
+
+									<span class="ltborderright ltborderleft threesevenths nospace">
+
+										<span class="sixth marno semibold centeralign nospace">
+											L
+										</span>
+
+										<span class="fivesixths nospace rightalign">
+										</span>
+								</span>
+
+
+							</div>
+					</td>
+				</tr>
+
+			</tbody>
+		</table><div class="tablesorter-sticky-wrapper tablesorter-sticky-hidden" style="position: fixed; top: 0px; left: 111.75px; visibility: hidden; z-index: 2; width: 899px;"><table id="3256260-sticky" class="tablesorter tablesorter-default tablesorter7e8d8450c77b5 containsStickyHeaders tablesorter-stickyHeader tablesorter7e8d8450c77b5_extra_table" role="grid" style="height: 0px; width: 899px; margin: 0px; min-width: 899px; max-width: 899px;">
+			<thead>
+				<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Round: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 46px; min-width: 46px; max-width: 46px;"><div class="tablesorter-header-inner">
+						Round
+					</div></th>
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Start: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 101px; min-width: 101px; max-width: 101px;"><div class="tablesorter-header-inner">
+						Start
+					</div></th>
+
+					<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Room: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 159px; min-width: 159px; max-width: 159px;"><div class="tablesorter-header-inner">
+						Room
+					</div></th>
+
+						<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Side: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 29px; min-width: 29px; max-width: 29px;"><div class="tablesorter-header-inner">
+							Side
+						</div></th>
+
+						<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Opponent: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 159px; min-width: 159px; max-width: 159px;"><div class="tablesorter-header-inner">
+							Opponent
+						</div></th>
+
+					<th class="smallish nosort tablesorter-header sortable tablesorter-headerUnSorted tablesorter7e8d8450c77b5_extra_headers" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="3256260" unselectable="on" aria-sort="none" aria-label="Judges
+						
+						
+							Results/Comments: No sort applied, activate to apply an ascending sort" style="user-select: none; width: 260px; min-width: 260px; max-width: 260px;"><div class="tablesorter-header-inner">
+						<span class="threesevenths">
+							Judges
+						</span>
+						<span class="threesevenths padleft">
+							Results/Comments
+						</span>
+					</div></th>
+				</tr>
+			</thead>
+
+			
+		</table></div>
+		</div>
+
+		</div>
+
+		<div class="screens future hidden">
+
+			<h4 class="martopmore">
+				Future Tournaments
+			</h4>
+
+
+
+				
+	<script type="text/javascript">
+
+        $(document).ready(function() {
+
+			$("#upcoming").tablesorter({
+				cssAsc      : "sortup",
+				cssDesc     : "sortdown",
+				cssHeader   : "sortable",
+				widgets     : ['zebra', 'columns', 'stickyHeaders', 'print', 'output'],
+				initialized : function(table) {
+					// Tablesorter disrupts the focus auto feature inside itself.  This works around.
+					$(".focushere").focus();
+				},
+				widgetOptions : {
+					columns          : [ "primary", "secondary", "tertiary" ],
+					print_rows       : "f",
+					print_columns    : "v",
+					print_now        : true,
+					print_styleSheet : "/lib/css/print.css",
+					output_saveRows  : "visible",
+					output_delivery  : "download"
+				}
+			});
+
+
+
+			$("#upcoming_buttonarea").addClass("martop");
+
+		});
+
+	</script>
+
+
+				<table id="upcoming" class="tablesorter tablesorter-default tablesorter6b23d48e6a248 hasStickyHeaders" role="grid">
+
+					<thead>
+
+						<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Tournament: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Tournament
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Dates: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Dates
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Event: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Event
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Info: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Info
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Status: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Status
+							</div></th>
+
+								<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Prefs: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Prefs
+								</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="6" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label=": No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+							</div></th>
+
+						</tr>
+
+					</thead>
+
+					<tbody aria-live="polite" aria-relevant="all">
+							<tr class="smallish" id="3348182" role="row">
+
+								<td class="nospace">
+									<div class="nowrap full marvertno semibold padvertless">
+										35th Annual Stanford Invitational
+									</div>
+									<div class="nowrap full nospace padbottom">
+										<span class="halfspacer"></span>
+										Classrooms.Cloud
+										CA
+									</div>
+								</td>
+
+								<td class="nowrap">
+
+									6 Feb 2021
+
+								</td>
+
+								<td class="nospace centeralign">
+									<a class="plain full marno padmore hover" target="_blank" href="https://www.tabroom.com/index/tourn/events.mhtml?event_id=141055">CX-O</a>
+								</td>
+
+								<td class="centeralign">
+								</td>
+
+								<td class="nospace centeralign">
+										<span class="full marno greentext semibold">
+											Confirmed
+										</span>
+								</td>
+
+								<td class="centeralign padsetting">
+								</td>
+							</tr>
+							<tr class="smallish" id="3256260" role="row">
+
+								<td class="nospace">
+									<div class="nowrap full marvertno semibold padvertless">
+										Arizona State HDSHC Invitational
+									</div>
+									<div class="nowrap full nospace padbottom">
+										<span class="halfspacer"></span>
+										NSDA Campus
+										AZ
+									</div>
+								</td>
+
+								<td class="nowrap">
+
+									8 Jan 2021
+
+								</td>
+
+								<td class="nospace centeralign">
+									<a class="plain full marno padmore hover" target="_blank" href="https://www.tabroom.com/index/tourn/events.mhtml?event_id=156454">VCX</a>
+								</td>
+
+								<td class="centeralign">
+								</td>
+
+								<td class="nospace centeralign">
+										<span class="full marno greentext semibold">
+											Confirmed
+										</span>
+								</td>
+
+										<td class="nospace centeralign redtext">
+											Closed
+										</td>
+
+								<td class="centeralign padsetting">
+								</td>
+							</tr>
+					</tbody>
+				</table><div class="tablesorter-sticky-wrapper tablesorter-sticky-hidden" style="position: fixed; top: 0px; left: 0px; visibility: hidden; z-index: 2;"><table id="upcoming-sticky" class="tablesorter tablesorter-default tablesorter6b23d48e6a248 containsStickyHeaders tablesorter-stickyHeader tablesorter6b23d48e6a248_extra_table" role="grid" style="height: 0px; width: 0px; margin: 0px;">
+
+					<thead>
+
+						<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Tournament: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Tournament
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Dates: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Dates
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Event: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Event
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Info: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Info
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Status: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Status
+							</div></th>
+
+								<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label="Prefs: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Prefs
+								</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter6b23d48e6a248_extra_headers" data-column="6" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="upcoming" unselectable="on" aria-sort="none" aria-label=": No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+							</div></th>
+
+						</tr>
+
+					</thead>
+
+					
+				</table></div>
+		</div>
+
+
+			<div class="screens signups hidden">
+
+				<h4 class="martopmore">
+					Tournaments Open for Signups
+				</h4>
+
+				
+	<script type="text/javascript">
+
+        $(document).ready(function() {
+
+			$("#signups").tablesorter({
+				cssAsc      : "sortup",
+				cssDesc     : "sortdown",
+				cssHeader   : "sortable",
+				widgets     : ['zebra', 'columns', 'stickyHeaders', 'print', 'output'],
+				initialized : function(table) {
+					// Tablesorter disrupts the focus auto feature inside itself.  This works around.
+					$(".focushere").focus();
+				},
+				widgetOptions : {
+					columns          : [ "primary", "secondary", "tertiary" ],
+					print_rows       : "f",
+					print_columns    : "v",
+					print_now        : true,
+					print_styleSheet : "/lib/css/print.css",
+					output_saveRows  : "visible",
+					output_delivery  : "download"
+				}
+			});
+
+
+
+			$("#signups_buttonarea").addClass("martop");
+
+		});
+
+	</script>
+
+
+				<table id="signups" class="tablesorter tablesorter-default tablesorter2790440c31124 hasStickyHeaders" role="grid">
+
+					<thead>
+
+						<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Tournament: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Tournament
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Dates: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Dates
+							</div></th>
+
+							<th class="smallish nowrap tablesorter-header sortable tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Signup Deadline: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Signup Deadline
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Events Offered: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Events Offered
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Info: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Info
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Signup: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Signup
+							</div></th>
+						</tr>
+					</thead>
+
+					<tbody aria-live="polite" aria-relevant="all">
+					</tbody>
+				</table><div class="tablesorter-sticky-wrapper tablesorter-sticky-hidden" style="position: fixed; top: 0px; left: 0px; visibility: hidden; z-index: 2;"><table id="signups-sticky" class="tablesorter tablesorter-default tablesorter2790440c31124 containsStickyHeaders tablesorter-stickyHeader tablesorter2790440c31124_extra_table" role="grid" style="height: 0px; width: 0px; margin: 0px;">
+
+					<thead>
+
+						<tr class="smallish semibold yellowrow tablesorter-headerRow" role="row">
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Tournament: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Tournament
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Dates: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Dates
+							</div></th>
+
+							<th class="smallish nowrap tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Signup Deadline: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Signup Deadline
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Events Offered: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Events Offered
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Info: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Info
+							</div></th>
+
+							<th class="smallish tablesorter-header sortable tablesorter-headerUnSorted tablesorter2790440c31124_extra_headers" data-column="5" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="signups" unselectable="on" aria-sort="none" aria-label="Signup: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+								Signup
+							</div></th>
+						</tr>
+					</thead>
+
+					
+				</table></div>
+			</div>
+
+		<div class="results screens hidden">
+				<div class="martopmore full nospace">
+					<span class="fourfifths martopless">
+						<h4 class="nospace">
+							History at DDI HL
+						</h4>
+					</span>
+
+					<span id="952283_buttonarea" class="fifth rightalign nospace martop">
+					<button id="print_952283" tabindex="-1" class="notfirst printbutton buttonwhite redtext fa fa-sm fa-print marleft"></button><button id="output_952283" tabindex="-1" class="notfirst printbutton buttonwhite greentext fa fa-sm fa-file-excel-o marleft"></button></span>
+				</div>
+
+				
+	<script type="text/javascript">
+
+        $(document).ready(function() {
+
+			$("#952283").tablesorter({
+				cssAsc      : "sortup",
+				cssDesc     : "sortdown",
+				cssHeader   : "sortable",
+				widgets     : ['zebra', 'columns', 'stickyHeaders', 'print', 'output'],
+				initialized : function(table) {
+					// Tablesorter disrupts the focus auto feature inside itself.  This works around.
+					$(".focushere").focus();
+				},
+				widgetOptions : {
+					columns          : [ "primary", "secondary", "tertiary" ],
+					print_rows       : "f",
+					print_columns    : "v",
+					print_now        : true,
+					print_styleSheet : "/lib/css/print.css",
+					output_saveRows  : "visible",
+					output_delivery  : "download"
+				}
+			});
+
+
+
+				var printButtonHTML = "<button id='print_952283' tabindex='-1' class='notfirst printbutton buttonwhite redtext fa fa-sm fa-print marleft'>";
+
+				var outputButtonHTML = "<button id='output_952283' tabindex='-1' class='notfirst printbutton buttonwhite greentext fa fa-sm fa-file-excel-o marleft'>";
+
+				if ( $("#952283_buttonarea").length) {
+
+						$("#952283_buttonarea").append(printButtonHTML);
+
+					$("#952283_buttonarea").append(outputButtonHTML);
+
+				} else {
+
+					var beginButtonRow = "<span id='952283_buttonarea' class='nospace half rightalign right'>";
+					var endButtonRow = "</span>";
+
+					$("#952283")
+						.before(beginButtonRow+outputButtonHTML+printButtonHTML+endButtonRow);
+
+				}
+
+				$("#952283_buttonarea").on(
+					'click',
+					'#print_952283',
+					function() {
+						$("#952283").trigger("printTable");
+					}
+				);
+
+				$("#952283_buttonarea").on(
+					'click',
+					'#output_952283',
+					function() {
+						$(".hiddencsv").addClass('yo');
+						$(".yo").removeClass('hiddencsv');
+						$("#952283").trigger("outputTable");
+						$(".yo").addClass('hiddencsv');
+						$(".hiddencsv").removeClass('yo');
+					}
+				);
+
+
+			$("#952283_buttonarea").addClass("martop");
+
+		});
+
+	</script>
+
+
+					<table id="952283" class="tablesorter tablesorter-default tablesorter6af1696987a15 hasStickyHeaders" role="grid">
+
+						<thead>
+
+							<tr class="yellowrow tablesorter-headerRow" role="row">
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Tourn: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Tourn
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Date: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Date
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Code: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Code
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Division: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Division
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Results: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Results
+								</div></th>
+
+							</tr>
+						</thead>
+
+						<tbody aria-live="polite" aria-relevant="all">
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16752&amp;student_id=952283">
+											DDI Tournament
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-08-05
+										</span>
+										5 Aug 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										DDI HL Malik &amp; Fang
+									</td>
+
+									<td class="">
+										Open
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16752&amp;student_id=952283">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16732&amp;student_id=952283">
+											DDI Practice Tournament
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-07-29
+										</span>
+										29 Jul 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										DDI HL Malik &amp; Fang
+									</td>
+
+									<td class="">
+										Open
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16732&amp;student_id=952283">
+										</a>
+									</td>
+
+								</tr>
+
+
+						</tbody>
+					</table><div class="tablesorter-sticky-wrapper tablesorter-sticky-hidden" style="position: fixed; top: 0px; left: 0px; visibility: hidden; z-index: 2;"><table id="952283-sticky" class="tablesorter tablesorter-default tablesorter6af1696987a15 containsStickyHeaders tablesorter-stickyHeader tablesorter6af1696987a15_extra_table" role="grid" style="height: 0px; width: 0px; margin: 0px;">
+
+						<thead>
+
+							<tr class="yellowrow tablesorter-headerRow" role="row">
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter6af1696987a15_extra_headers" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Tourn: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Tourn
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter6af1696987a15_extra_headers" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Date: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Date
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter6af1696987a15_extra_headers" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Code: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Code
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter6af1696987a15_extra_headers" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Division: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Division
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter6af1696987a15_extra_headers" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="952283" unselectable="on" aria-sort="none" aria-label="Results: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Results
+								</div></th>
+
+							</tr>
+						</thead>
+
+						
+					</table></div>
+				<div class="martopmore full nospace">
+					<span class="fourfifths martopless">
+						<h4 class="nospace">
+							History at College Prep
+						</h4>
+					</span>
+
+					<span id="829749_buttonarea" class="fifth rightalign nospace martop">
+					<button id="print_829749" tabindex="-1" class="notfirst printbutton buttonwhite redtext fa fa-sm fa-print marleft"></button><button id="output_829749" tabindex="-1" class="notfirst printbutton buttonwhite greentext fa fa-sm fa-file-excel-o marleft"></button></span>
+				</div>
+
+				
+	<script type="text/javascript">
+
+        $(document).ready(function() {
+
+			$("#829749").tablesorter({
+				cssAsc      : "sortup",
+				cssDesc     : "sortdown",
+				cssHeader   : "sortable",
+				widgets     : ['zebra', 'columns', 'stickyHeaders', 'print', 'output'],
+				initialized : function(table) {
+					// Tablesorter disrupts the focus auto feature inside itself.  This works around.
+					$(".focushere").focus();
+				},
+				widgetOptions : {
+					columns          : [ "primary", "secondary", "tertiary" ],
+					print_rows       : "f",
+					print_columns    : "v",
+					print_now        : true,
+					print_styleSheet : "/lib/css/print.css",
+					output_saveRows  : "visible",
+					output_delivery  : "download"
+				}
+			});
+
+
+
+				var printButtonHTML = "<button id='print_829749' tabindex='-1' class='notfirst printbutton buttonwhite redtext fa fa-sm fa-print marleft'>";
+
+				var outputButtonHTML = "<button id='output_829749' tabindex='-1' class='notfirst printbutton buttonwhite greentext fa fa-sm fa-file-excel-o marleft'>";
+
+				if ( $("#829749_buttonarea").length) {
+
+						$("#829749_buttonarea").append(printButtonHTML);
+
+					$("#829749_buttonarea").append(outputButtonHTML);
+
+				} else {
+
+					var beginButtonRow = "<span id='829749_buttonarea' class='nospace half rightalign right'>";
+					var endButtonRow = "</span>";
+
+					$("#829749")
+						.before(beginButtonRow+outputButtonHTML+printButtonHTML+endButtonRow);
+
+				}
+
+				$("#829749_buttonarea").on(
+					'click',
+					'#print_829749',
+					function() {
+						$("#829749").trigger("printTable");
+					}
+				);
+
+				$("#829749_buttonarea").on(
+					'click',
+					'#output_829749',
+					function() {
+						$(".hiddencsv").addClass('yo');
+						$(".yo").removeClass('hiddencsv');
+						$("#829749").trigger("outputTable");
+						$(".yo").addClass('hiddencsv');
+						$(".hiddencsv").removeClass('yo');
+					}
+				);
+
+
+			$("#829749_buttonarea").addClass("martop");
+
+		});
+
+	</script>
+
+
+					<table id="829749" class="tablesorter tablesorter-default tablesorter96bd43fde3edf hasStickyHeaders" role="grid">
+
+						<thead>
+
+							<tr class="yellowrow tablesorter-headerRow" role="row">
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Tourn: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Tourn
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Date: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Date
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Code: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Code
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Division: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Division
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Results: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Results
+								</div></th>
+
+							</tr>
+						</thead>
+
+						<tbody aria-live="polite" aria-relevant="all">
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14991&amp;student_id=829749">
+											Glenbrooks Speech and Debate Tournament
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-11-21
+										</span>
+										21 Nov 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep VF
+									</td>
+
+									<td class="">
+										Junior Varsity Policy
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14991&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16954&amp;student_id=829749">
+											The Meadows Invitational
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-10-31
+										</span>
+										31 Oct 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep FM
+									</td>
+
+									<td class="">
+										Policy JV
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16954&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16315&amp;student_id=829749">
+											National Speech and Debate Season Opener Hosted by UK
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-09-12
+										</span>
+										12 Sep 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep FM
+									</td>
+
+									<td class="">
+										Policy - Varsity
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16315&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=15374&amp;student_id=829749">
+											Western JV and Novice National Championship
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-03-14
+										</span>
+										14 Mar 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep FV
+									</td>
+
+									<td class="">
+										Novice CX
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=15374&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14838&amp;student_id=829749">
+											34th Annual Stanford Invitational
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-02-08
+										</span>
+										8 Feb 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep YF
+									</td>
+
+									<td class="">
+										JV Policy Debate
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14838&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=12918&amp;student_id=829749">
+											Arizona State HDSHC Invitational
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2020-01-10
+										</span>
+										10 Jan 2020
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep FL
+									</td>
+
+									<td class="">
+										Novice Policy
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=12918&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13422&amp;student_id=829749">
+											SCU Dempsey Cronin Invitational
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2019-11-22
+										</span>
+										22 Nov 2019
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										College Prep HF
+									</td>
+
+									<td class="">
+										Policy Novice
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13422&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14434&amp;student_id=829749">
+											GGSA Debate 2
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2019-11-10
+										</span>
+										10 Nov 2019
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										ColPre GF
+									</td>
+
+									<td class="">
+										Novice Policy
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14434&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+								<tr class="smallish" role="row">
+
+									<td class="nospace">
+										<a class="white full padvert" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13959&amp;student_id=829749">
+											GGSA Debate 1
+										</a>
+									</td>
+
+									<td class="rightalign">
+										<span class="hidden">
+											2019-10-12
+										</span>
+										12 Oct 2019
+										<span class="halfspacer"></span>
+									</td>
+
+									<td class="nowrap">
+										ColPre GF
+									</td>
+
+									<td class="">
+										Novice Policy
+									</td>
+
+									<td class="smallish centeralign nospace">
+										<a class="buttonwhite smallish bluetext marvert padvertless fa fa-sm fa-file-text" target="_blank" href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13959&amp;student_id=829749">
+										</a>
+									</td>
+
+								</tr>
+
+
+						</tbody>
+					</table><div class="tablesorter-sticky-wrapper tablesorter-sticky-hidden" style="position: fixed; top: 0px; left: 0px; visibility: hidden; z-index: 2;"><table id="829749-sticky" class="tablesorter tablesorter-default tablesorter96bd43fde3edf containsStickyHeaders tablesorter-stickyHeader tablesorter96bd43fde3edf_extra_table" role="grid" style="height: 0px; width: 0px; margin: 0px;">
+
+						<thead>
+
+							<tr class="yellowrow tablesorter-headerRow" role="row">
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter96bd43fde3edf_extra_headers" data-column="0" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Tourn: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Tourn
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter96bd43fde3edf_extra_headers" data-column="1" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Date: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Date
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter96bd43fde3edf_extra_headers" data-column="2" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Code: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Code
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter96bd43fde3edf_extra_headers" data-column="3" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Division: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Division
+								</div></th>
+
+								<th class="smaller tablesorter-header sortable tablesorter-headerUnSorted tablesorter96bd43fde3edf_extra_headers" data-column="4" tabindex="0" scope="col" role="columnheader" aria-disabled="false" aria-controls="829749" unselectable="on" aria-sort="none" aria-label="Results: No sort applied, activate to apply an ascending sort" style="user-select: none;"><div class="tablesorter-header-inner">
+									Results
+								</div></th>
+
+							</tr>
+						</thead>
+
+						
+					</table></div>
+		</div>
+	</div>
+
+		</div>
+
+	</div>
+
+
+	<div id="footer">
+
+		<span class="leftlinks twothirds">
+
+			<a tabindex="-1" href="https://www.speechanddebate.org/join">
+				Join the NSDA
+			</a>
+
+
+			<a tabindex="-1" href="https://www.speechanddebate.org/mission">About</a>
+
+			<a tabindex="-1" href="mailto:help@tabroom.com">Help</a>
+
+			<a tabindex="-1" href="https://www.tabroom.com/index/about.mhtml">Contact</a>
+
+			<a tabindex="-1" href="https://www.speechanddebate.org/privacy-policy">Privacy Policy</a>
+
+			<a tabindex="-1" href="https://www.speechanddebate.org/terms-conditions">Terms</a>
+
+
+		</span>
+
+
+	</div>
+
+	</div>
+
+
+	
+
+
+
+<div class="alertify-notifier ajs-bottom ajs-left"></div></body><div class="fika-reader-mode" id="fika-reader" style="display: none;"><div id="fika" class="fika-app theme-blabar"><!--drawer--><div class="fika-tool"><!--open--><button class="fika-btn fika-btn-icon mr-1" id="fika-tool-btn" data-whats-new="menu"><svg class="fika-icon" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path></svg></button><!--toc--><button class="fika-btn fika-btn-icon" id="fika-toc-btn"><svg class="fika-icon" viewBox="0 0 24 24"><path d="M4 13c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm0 4c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm0-8c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm4 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zm0 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zM7 8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1zm-3 5c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm0 4c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm0-8c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm4 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zm0 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zM7 8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1z"></path></svg><div class="fika-tooltip">TOC</div></button><button class="fika-btn fika-btn-icon" id="fika-settings" data-whats-new="settings"><svg class="fika-icon" width="20px" height="20px" viewBox="0 0 20 20"><path d="M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"></path></svg><div class="fika-tooltip">Settings</div></button><!--appearance settings--><div class="fika-menu"><div class="fika-menu-nav d-flex flex-column"><div class="fika-menu-nav-item active">Text</div><div class="fika-menu-nav-item">Theme</div><!--<div class="fika-menu-nav-item fika-pro">Autopilot</div>--><div class="flex-fill"></div><a class="fika-menu-nav-item small flex-y-center fika-share-fika" data-type="fb" style="display:none;margin-bottom: -6px;margin-left: -4px" href="https://www.facebook.com/dialog/feed?app_id=393950891439557&amp;display=popup&amp;link=https://chrome.google.com/webstore/detail/fika-reader-mode/fbcdnjeoghampomjjaahjgjghdjdbbcj" target="_blank"><svg class="fika-icon" height="20px" width="20px" viewBox="0 0 32 32"><path class="st0" d="M21.2,9.2h-2c-1.5,0-1.9,0.8-1.9,1.8v2.5h3.8l-0.8,3.7h-3l0.1,8.9h-3.7v-8.8h-3v-3.8h3v-3c0-3.1,2-4.6,4.7-4.6C19.9,5.9,21,6,21.2,6V9.2z"></path></svg>Share to Facebook</a><a class="fika-menu-nav-item small flex-y-center fika-share-fika" data-type="tw" style="display:none;margin-bottom: -6px;margin-left: -4px" href="https://twitter.com/intent/retweet?tweet_id=1117715831540965376" target="_blank"><svg class="fika-icon" height="20px" width="20px" viewBox="0 0 32 32"><path class="st0" d="M23.9,11.9c0,0.2,0,0.3,0,0.5c0,5.3-4.1,11.4-11.4,11.4c-2.2,0-4.4-0.7-6.2-1.8c0.3,0.1,0.7,0.1,1,0.1c1.9,0,3.7-0.7,5-1.7c-1.7,0-3.3-1.2-3.8-2.8c0.2,0.1,0.5,0.1,0.7,0.1c0.4,0,0.7,0,1.1-0.1c-1.9-0.4-3.3-2-3.3-3.9v-0.1c0.5,0.3,1.1,0.5,1.8,0.5c-1.1-0.7-1.8-2-1.8-3.3c0-0.7,0.2-1.4,0.6-2c2,2.4,4.9,4,8.4,4.1c0-0.3-0.1-0.6-0.1-0.9c0-2.2,1.8-4,4-4C21,8,22,8.5,22.8,9.3c0.9-0.2,1.7-0.5,2.5-1c-0.3,0.9-1,1.7-1.8,2.2c0.8,0,1.5-0.2,2.3-0.6C25.2,10.8,24.6,11.4,23.9,11.9z"></path></svg>Share to Twitter</a><a class="fika-menu-nav-item small mb-1" href="http://fika.io/updatelog" target="_blank">What's new</a><!--                <div class="fika-menu-nav-item static small" style="font-size: 12px;--><!--    line-height: 16px;" id="fika-beta-info">--><!--                    <div class="fika-pro" style=" margin-left: -4px;"></div>--><!--                    Login and share Fika to gain BETA access.--><!--                </div>--><!--<a class="fika-menu-nav-item small" href="http://fika.io/pro" target="_blank">Upgrade to Pro</a>--><div class="fika-menu-login"></div></div><div class="fika-menu-view-cont"><!--text--><div class="fika-menu-view" style="display: block"><div class="fika-menu-label">Text</div><div class="fika-tab"><div class="fika-tab-item" style="font-size:12px" data-sel="size-small">small</div><div class="fika-tab-item active" style="font-size:14px" data-sel="size-medium">medium</div><div class="fika-tab-item" style="font-size:16px" data-sel="size-large">large</div></div><div class="fika-menu-label mt-3">Alignment</div><div class="fika-tab"><div class="fika-tab-item active" data-sel="align-normal">normal</div><div class="fika-tab-item" data-sel="align-justify">justify</div></div><div class="fika-menu-label mt-3">Font</div><div class="fika-select fika-select-fonts"><div class="fika-select-item font-arial" data-sel="font-arial">Arial</div><div class="fika-select-item font-courier" data-sel="font-courier">Courier</div><div class="fika-select-item font-georgia" data-sel="font-georgia">Georgia</div><div class="fika-select-item font-merriweather" data-sel="font-merriweather">Merriweather</div><div class="fika-select-item font-openSans active" data-sel="font-openSans">Open Sans</div><div class="fika-select-item font-palatino" data-sel="font-palatino">Palatino</div></div></div><!--theme--><div class="fika-menu-view" data-tab="theme"><div class="fika-menu-label">Theme Color</div><div class="fika-select-themes"><div class="fika-select-theme theme-vanilla" data-sel="theme-vanilla"></div><div class="fika-select-theme theme-latte" data-sel="theme-latte"></div><div class="fika-select-theme theme-blabar active" data-sel="theme-blabar"></div><div class="fika-select-theme theme-licorice" data-sel="theme-licorice"></div></div><div class="fika-pro-item has-unlock-btn"><div class="fika-share-to-unlock"></div><div class="mt-3 fika-menu-label fika-pro">Background</div><!--<div class="my-2 d-flex fika-justify-space-between"><div class="fika-menu-label"><span class="fika-menu-label-sec">Photo Rotation</span><div class="fika-menu-label-desc">Rotate photo backgrounds everyday</div></div><input type="checkbox" id="fika-photo-bg" disabled><label class="fika-toggle" for="fika-photo-bg"></label></div>--><div class="d-flex fika-align-center mb-1 mt-2"><div class="fika-photo-grid-tab active" data-tab="photo">PHOTO</div><div class="ml-2 fika-photo-grid-tab" data-tab="color">COLOR</div></div><div class="fika-photo-grid" data-tab="photo"><div class="fika-photo-grid-item fika-photo-grid-default" data-type="default"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill">Default</div></div><div class="fika-photo-grid-item" data-type="photo" data-index="0" data-id="26"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1528164344705-47542687000d"></div><div class="fika-photo-grid-item" data-type="photo" data-index="1" data-id="25"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1446776811953-b23d57bd21aa"></div><div class="fika-photo-grid-item" data-type="photo" data-index="2" data-id="24"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1527580795266-e93c8e079c22"></div><div class="fika-photo-grid-item" data-type="photo" data-index="3" data-id="23"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1496737018672-b1a6be2e949c"></div><div class="fika-photo-grid-item" data-type="photo" data-index="4" data-id="22"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1444260239795-df1f0772a252"></div><div class="fika-photo-grid-item" data-type="photo" data-index="5" data-id="21"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1529344173594-5f748ed24b2c"></div><div class="fika-photo-grid-item" data-type="photo" data-index="6" data-id="20"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1468753613798-cfa7e7f0e5cf"></div><div class="fika-photo-grid-item" data-type="photo" data-index="7" data-id="19"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1477696957384-3b1d731c4cff"></div><div class="fika-photo-grid-item" data-type="photo" data-index="8" data-id="18"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1544077960-604201fe74bc"></div><div class="fika-photo-grid-item" data-type="photo" data-index="9" data-id="17"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1490750967868-88aa4486c946"></div><div class="fika-photo-grid-item" data-type="photo" data-index="10" data-id="16"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1459664018906-085c36f472af"></div><div class="fika-photo-grid-item" data-type="photo" data-index="11" data-id="15"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1526275750900-6961d302a565"></div><div class="fika-photo-grid-item" data-type="photo" data-index="12" data-id="14"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1541100242370-4d536228f2a7"></div><div class="fika-photo-grid-item" data-type="photo" data-index="13" data-id="13"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1529801877115-8a69a227fcc0"></div><div class="fika-photo-grid-item" data-type="photo" data-index="14" data-id="12"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1554176259-aa961fc32671"></div><div class="fika-photo-grid-item" data-type="photo" data-index="15" data-id="11"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1529164114-6b1bd6f5cc91"></div><div class="fika-photo-grid-item" data-type="photo" data-index="16" data-id="10"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1538947378928-4561e14354fe"></div><div class="fika-photo-grid-item" data-type="photo" data-index="17" data-id="9"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1549880181-7827bc088ad9"></div><div class="fika-photo-grid-item" data-type="photo" data-index="18" data-id="8"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1501854140801-50d01698950b"></div><div class="fika-photo-grid-item" data-type="photo" data-index="19" data-id="7"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1554935897-1bb0d260620a"></div><div class="fika-photo-grid-item" data-type="photo" data-index="20" data-id="6"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1554147090-e1221a04a025"></div><div class="fika-photo-grid-item" data-type="photo" data-index="21" data-id="5"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1496768050990-568b4d02ec18"></div><div class="fika-photo-grid-item" data-type="photo" data-index="22" data-id="4"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1548919973-5cef591cdbc9"></div><div class="fika-photo-grid-item" data-type="photo" data-index="23" data-id="3"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1552152370-fb05b25ff17d"></div><div class="fika-photo-grid-item" data-type="photo" data-index="24" data-id="2"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/34943640193_c2a25d399e.jpg"></div><div class="fika-photo-grid-item" data-type="photo" data-index="25" data-id="1"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><img class="fill" src="./Tabroom.com ASU rd5 included_files/photo-1554602337-bcb0d619e511"></div></div><div class="fika-photo-grid" data-tab="color" style="display: none;"><div class="fika-photo-grid-item fika-photo-grid-default" data-type="default"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill">Default</div></div><div class="fika-photo-grid-item" data-type="color" data-index="0" data-id="1"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#C3ACEA"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="1" data-id="2"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#FFC5CC"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="2" data-id="3"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#F6D863"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="3" data-id="4"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#FCF3CA"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="4" data-id="5"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#B9E4C9"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="5" data-id="6"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#90F3E8"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="6" data-id="7"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#8FCAF2"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="7" data-id="8"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#293990"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="8" data-id="9"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#191D2D"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="9" data-id="10"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#111111"></div></div><div class="fika-photo-grid-item" data-type="color" data-index="10" data-id="11"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg><div class="fill" style="background-color:#F5F5F5"></div></div></div></div></div></div></div><!--print--><!--<button class="fika-btn fika-btn-icon" id="fika-print">--><!--<svg class="fika-icon" viewBox="0 0 24 24">--><!--<path d="M19,8H5c-1.7,0-3,1.3-3,3v6h4v4h12v-4h4v-6C22,9.3,20.7,8,19,8z M16,19H8v-5h8V19z M19,12c-0.5,0-1-0.4-1-1s0.5-1,1-1--><!--s1,0.4,1,1S19.5,12,19,12z M18,3H6v4h12V3z"/>--><!--</svg>--><!--</button>--><!--fullscreen--><button class="fika-btn fika-btn-icon" id="fika-fullscreen"><!--exit--><svg class="fika-icon" viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"></path></svg><!--fs--><svg class="fika-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path></svg><div class="fika-tooltip">Fullscreen</div></button></div><div class="fika-drawer"><div class="my-2 d-flex fika-align-center fika-justify-space-between"><div class="fika-select-label" style="margin: 8px">Table of content</div><button class="fika-btn fika-btn-icon ml-1 fika-drawer-close"><svg class="fika-icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button></div><div class="fika-drawer-content"><div class="fika-drawer-content-wrap"><!-- ** toc--><div class="fika-toc"><a data-id="#8340.065457356204" class="fika-toc-h1">
+				  Tabroom.com
+			</a><a data-id="#3622.7091517067424" class="fika-toc-h2">Jim Fang</a><a data-id="#602.7728613602123" class="fika-toc-h3">Competitor Records</a><a data-id="#3985.318196166354" class="fika-toc-h3">Current Entries</a><a data-id="#2526.9748728993304" class="fika-toc-h4">Arizona State HDSHC Invitational</a><a data-id="#2961.338076158431" class="fika-toc-h3">Future Tournaments</a><a data-id="#7524.087186365782" class="fika-toc-h3">Tournaments Open for Signups</a><a data-id="#3444.2327334350466" class="fika-toc-h3">History at DDI HL</a><a data-id="#2636.6065247347437" class="fika-toc-h3">History at College Prep</a></div></div></div></div><!--overlay--><div class="fika-overlay"></div><!--paper--><div class="fika-main-body"><div class="fika-toc-static fika-toc-static-active"><div class="fika-toc"><a data-id="#8340.065457356204" class="fika-toc-h1">
+				  Tabroom.com
+			</a><a data-id="#3622.7091517067424" class="fika-toc-h2">Jim Fang</a><a data-id="#602.7728613602123" class="fika-toc-h3">Competitor Records</a><a data-id="#3985.318196166354" class="fika-toc-h3">Current Entries</a><a data-id="#2526.9748728993304" class="fika-toc-h4">Arizona State HDSHC Invitational</a><a data-id="#2961.338076158431" class="fika-toc-h3">Future Tournaments</a><a data-id="#7524.087186365782" class="fika-toc-h3">Tournaments Open for Signups</a><a data-id="#3444.2327334350466" class="fika-toc-h3">History at DDI HL</a><a data-id="#2636.6065247347437" class="fika-toc-h3">History at College Prep</a></div></div><div class="fika-paper"><div class="fika-article size-medium font-openSans align-normal"><div class="fika-article-domain"><span>www.tabroom.com</span></div><div class="fika-article-title" id="8340.065457356204">
+				  Tabroom.com
+			</div><div class="fika-article-divider"></div><div class="fika-content"><div><span><h3 id="3622.7091517067424">
+				Jim Fang
+			</h3></span><span><h4 id="602.7728613602123">
+				Competitor Records
+			</h4></span><ul><li>
+						Current
+					</li><li>
+						Future
+					</li><li>
+						Results
+					</li><li>
+						NSDA
+					
+
+
+		</li></ul><div><h4 id="3985.318196166354">
+				Current Entries
+			</h4><div><span><h5 id="2526.9748728993304">
+				Arizona State HDSHC Invitational
+			</h5></span><span>
+			Varsity Policy
+		</span><span>
+			Code: College Prep FV
+		</span></div><p>
+				Online Spaces
+			</p><div><span><span>
+						College Prep Squad Room
+					</span></span></div><div><table><thead><tr><th><div>
+						Round
+					</div></th><th><div>
+						Start
+					</div></th><th><div>
+						Room
+					</div></th><th><div>
+							Side
+						</div></th><th><div>
+							Opponent
+						</div></th><th><div><span>
+							Judges
+						</span><span>
+							Results/Comments
+						</span></div></th></tr></thead><tbody><tr><td>
+						Round 5
+					</td><td><span><div>
+								Sat 11:00 AM
+								PST
+							</div><div>
+								12:00 PM
+								MST
+							</div></span></td><td>
+							Aff
+
+						</td><td>
+							Peninsula CW
+						</td><td><div><span><span><a href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=51092" target="_blank">P</a></span>
+									Middleton, Hunter
+								</span></div></td></tr><tr><td>
+						Round 4
+					</td><td><span><div>
+								Sat 8:00 AM
+								PST
+							</div><div>
+								9:00 AM
+								MST
+							</div></span></td><td>
+							Aff
+
+						</td><td>
+							Meadows HY
+						</td><td><div><span><span><a href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=236693" target="_blank">P</a></span>
+									Halverson, Will
+								</span><span><span>
+											L
+										</span></span></div></td></tr><tr><td>
+						Round 3
+					</td><td><span><div>
+								Fri 3:00 PM
+								PST
+							</div><div>
+								4:00 PM
+								MST
+							</div></span></td><td>
+							Neg
+
+						</td><td>
+							Rowland Hall DK
+						</td><td><div><span><span><a href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=31395" target="_blank">P</a></span>
+									Reese, KJ
+								</span><span><span>
+											L
+										</span></span></div></td></tr><tr><td>
+						Round 2
+					</td><td><span><div>
+								Fri 12:00 PM
+								PST
+							</div><div>
+								1:00 PM
+								MST
+							</div></span></td><td>
+							Aff
+
+						</td><td>
+							Peninsula KL
+						</td><td><div><span><span><a href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=85616" target="_blank">P</a></span>
+									Peng, Justin
+								</span><span><span>
+											W
+										</span></span></div></td></tr><tr><td>
+						Round 1
+					</td><td><span><div>
+								Fri 9:00 AM
+								PST
+							</div><div>
+								10:00 AM
+								MST
+							</div></span></td><td>
+							Neg
+
+						</td><td>
+							Advanced Technologies BB
+						</td><td><div><span><span><a href="https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=15555" target="_blank">P</a></span>
+									Trufanov, Anthony
+								</span><span><span>
+											L
+										</span></span></div></td></tr></tbody></table><div><table><thead><tr><th><div>
+						Round
+					</div></th><th><div>
+						Start
+					</div></th><th><div>
+						Room
+					</div></th><th><div>
+							Side
+						</div></th><th><div>
+							Opponent
+						</div></th><th><div><span>
+							Judges
+						</span><span>
+							Results/Comments
+						</span></div></th></tr></thead></table></div></div></div><div><h4 id="2961.338076158431">
+				Future Tournaments
+			</h4><table><thead><tr><th><div>
+								Tournament
+							</div></th><th><div>
+								Dates
+							</div></th><th><div>
+								Event
+							</div></th><th><div>
+								Info
+							</div></th><th><div>
+								Status
+							</div></th><th><div>
+									Prefs
+								</div></th></tr></thead><tbody><tr><td><div>
+										35th Annual Stanford Invitational
+									</div><div>
+										Classrooms.Cloud
+										CA
+									</div></td><td>
+
+									6 Feb 2021
+
+								</td><td><a href="https://www.tabroom.com/index/tourn/events.mhtml?event_id=141055" target="_blank">CX-O</a></td><td><span>
+											Confirmed
+										</span></td></tr><tr><td><div>
+										Arizona State HDSHC Invitational
+									</div><div>
+										NSDA Campus
+										AZ
+									</div></td><td>
+
+									8 Jan 2021
+
+								</td><td><a href="https://www.tabroom.com/index/tourn/events.mhtml?event_id=156454" target="_blank">VCX</a></td><td><span>
+											Confirmed
+										</span></td><td>
+											Closed
+										</td></tr></tbody></table><div><table><thead><tr><th><div>
+								Tournament
+							</div></th><th><div>
+								Dates
+							</div></th><th><div>
+								Event
+							</div></th><th><div>
+								Info
+							</div></th><th><div>
+								Status
+							</div></th><th><div>
+									Prefs
+								</div></th></tr></thead></table></div></div><div><h4 id="7524.087186365782">
+					Tournaments Open for Signups
+				</h4><table><thead><tr><th><div>
+								Tournament
+							</div></th><th><div>
+								Dates
+							</div></th><th><div>
+								Signup Deadline
+							</div></th><th><div>
+								Events Offered
+							</div></th><th><div>
+								Info
+							</div></th><th><div>
+								Signup
+							</div></th></tr></thead></table><div><table><thead><tr><th><div>
+								Tournament
+							</div></th><th><div>
+								Dates
+							</div></th><th><div>
+								Signup Deadline
+							</div></th><th><div>
+								Events Offered
+							</div></th><th><div>
+								Info
+							</div></th><th><div>
+								Signup
+							</div></th></tr></thead></table></div></div><div><div><span><h4 id="3444.2327334350466">
+							History at DDI HL
+						</h4></span></div><table><thead><tr><th><div>
+									Tourn
+								</div></th><th><div>
+									Date
+								</div></th><th><div>
+									Code
+								</div></th><th><div>
+									Division
+								</div></th><th><div>
+									Results
+								</div></th></tr></thead><tbody><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16752&amp;student_id=952283" target="_blank">
+											DDI Tournament
+										</a></td><td><span>
+											2020-08-05
+										</span>
+										5 Aug 2020
+										</td><td>
+										DDI HL Malik &amp; Fang
+									</td><td>
+										Open
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16732&amp;student_id=952283" target="_blank">
+											DDI Practice Tournament
+										</a></td><td><span>
+											2020-07-29
+										</span>
+										29 Jul 2020
+										</td><td>
+										DDI HL Malik &amp; Fang
+									</td><td>
+										Open
+									</td></tr></tbody></table><div><table><thead><tr><th><div>
+									Tourn
+								</div></th><th><div>
+									Date
+								</div></th><th><div>
+									Code
+								</div></th><th><div>
+									Division
+								</div></th><th><div>
+									Results
+								</div></th></tr></thead></table></div><div><span><h4 id="2636.6065247347437">
+							History at College Prep
+						</h4></span></div><table><thead><tr><th><div>
+									Tourn
+								</div></th><th><div>
+									Date
+								</div></th><th><div>
+									Code
+								</div></th><th><div>
+									Division
+								</div></th><th><div>
+									Results
+								</div></th></tr></thead><tbody><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14991&amp;student_id=829749" target="_blank">
+											Glenbrooks Speech and Debate Tournament
+										</a></td><td><span>
+											2020-11-21
+										</span>
+										21 Nov 2020
+										</td><td>
+										College Prep VF
+									</td><td>
+										Junior Varsity Policy
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16954&amp;student_id=829749" target="_blank">
+											The Meadows Invitational
+										</a></td><td><span>
+											2020-10-31
+										</span>
+										31 Oct 2020
+										</td><td>
+										College Prep FM
+									</td><td>
+										Policy JV
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=16315&amp;student_id=829749" target="_blank">
+											National Speech and Debate Season Opener Hosted by UK
+										</a></td><td><span>
+											2020-09-12
+										</span>
+										12 Sep 2020
+										</td><td>
+										College Prep FM
+									</td><td>
+										Policy - Varsity
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=15374&amp;student_id=829749" target="_blank">
+											Western JV and Novice National Championship
+										</a></td><td><span>
+											2020-03-14
+										</span>
+										14 Mar 2020
+										</td><td>
+										College Prep FV
+									</td><td>
+										Novice CX
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14838&amp;student_id=829749" target="_blank">
+											34th Annual Stanford Invitational
+										</a></td><td><span>
+											2020-02-08
+										</span>
+										8 Feb 2020
+										</td><td>
+										College Prep YF
+									</td><td>
+										JV Policy Debate
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=12918&amp;student_id=829749" target="_blank">
+											Arizona State HDSHC Invitational
+										</a></td><td><span>
+											2020-01-10
+										</span>
+										10 Jan 2020
+										</td><td>
+										College Prep FL
+									</td><td>
+										Novice Policy
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13422&amp;student_id=829749" target="_blank">
+											SCU Dempsey Cronin Invitational
+										</a></td><td><span>
+											2019-11-22
+										</span>
+										22 Nov 2019
+										</td><td>
+										College Prep HF
+									</td><td>
+										Policy Novice
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=14434&amp;student_id=829749" target="_blank">
+											GGSA Debate 2
+										</a></td><td><span>
+											2019-11-10
+										</span>
+										10 Nov 2019
+										</td><td>
+										ColPre GF
+									</td><td>
+										Novice Policy
+									</td></tr><tr><td><a href="https://www.tabroom.com/user/student/history.mhtml?tourn_id=13959&amp;student_id=829749" target="_blank">
+											GGSA Debate 1
+										</a></td><td><span>
+											2019-10-12
+										</span>
+										12 Oct 2019
+										</td><td>
+										ColPre GF
+									</td><td>
+										Novice Policy
+									</td></tr></tbody></table><div><table><thead><tr><th><div>
+									Tourn
+								</div></th><th><div>
+									Date
+								</div></th><th><div>
+									Code
+								</div></th><th><div>
+									Division
+								</div></th><th><div>
+									Results
+								</div></th></tr></thead></table></div></div></div></div></div><div class="fika-share"><div class="fika-share-divider"></div><div class="fika-share-buttons"><button id="fika-twitter-share" class="fika-btn fika-btn-icon"><svg class="fika-icon fika-icon-large" viewBox="0 0 32 32"><path d="M23.9,11.9c0,0.2,0,0.3,0,0.5c0,5.3-4.1,11.4-11.4,11.4c-2.2,0-4.4-0.7-6.2-1.8c0.3,0.1,0.7,0.1,1,0.1c1.9,0,3.7-0.7,5-1.7c-1.7,0-3.3-1.2-3.8-2.8c0.2,0.1,0.5,0.1,0.7,0.1c0.4,0,0.7,0,1.1-0.1c-1.9-0.4-3.3-2-3.3-3.9v-0.1c0.5,0.3,1.1,0.5,1.8,0.5c-1.1-0.7-1.8-2-1.8-3.3c0-0.7,0.2-1.4,0.6-2c2,2.4,4.9,4,8.4,4.1c0-0.3-0.1-0.6-0.1-0.9c0-2.2,1.8-4,4-4C21,8,22,8.5,22.8,9.3c0.9-0.2,1.7-0.5,2.5-1c-0.3,0.9-1,1.7-1.8,2.2c0.8,0,1.5-0.2,2.3-0.6C25.2,10.8,24.6,11.4,23.9,11.9z"></path></svg></button><button id="fika-facebook-share" class="fika-btn fika-btn-icon"><svg class="fika-icon fika-icon-large" viewBox="0 0 32 32"><path d="M21.2,9.2h-2c-1.5,0-1.9,0.8-1.9,1.8v2.5h3.8l-0.8,3.7h-3l0.1,8.9h-3.7v-8.8h-3v-3.8h3v-3c0-3.1,2-4.6,4.7-4.6C19.9,5.9,21,6,21.2,6V9.2z"></path></svg></button></div></div><div class="fika-feedback my-6"><p id="fika-feedback-msg">Is Fika working properly on this site?</p><div class="my-3"><button class="fika-btn fika-btn-icon fika-btn-large fika-btn-depress fika-feedback-button" data-match="1"><svg class="fika-icon fika-icon-large" viewBox="0 0 24 24"><circle cx="15.5" cy="9.5" r="1.5"></circle><circle cx="8.5" cy="9.5" r="1.5"></circle><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm4.41-6.11c-.35-.22-.82-.11-1.03.24-.74 1.17-2 1.87-3.38 1.87s-2.64-.7-3.38-1.88c-.22-.35-.68-.46-1.03-.24-.35.22-.46.68-.24 1.03C8.37 16.54 10.1 17.5 12 17.5s3.63-.97 4.65-2.58c.22-.35.11-.81-.24-1.03z"></path></svg></button><button class="fika-btn fika-btn-icon fika-btn-large fika-btn-depress ml-2 fika-feedback-button" data-match="0"><svg class="fika-icon fika-icon-large" viewBox="0 0 24 24"><circle cx="15.5" cy="9.5" r="1.5"></circle><circle cx="8.5" cy="9.5" r="1.5"></circle><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-6c-1.9 0-3.63.97-4.65 2.58-.22.35-.11.81.24 1.03.35.22.81.11 1.03-.24.74-1.18 2-1.88 3.38-1.88s2.64.7 3.38 1.88c.14.23.39.35.64.35.14 0 .27-.04.4-.11.35-.22.46-.68.24-1.03C15.63 14.96 13.9 14 12 14z"></path></svg></button></div></div></div><div class="fika-footer"><a class="fika-footer-logo" href="http://fika.io/" target="_blank"><img style="" src="chrome-extension://fbcdnjeoghampomjjaahjgjghdjdbbcj/images/logo64.png">Made with love by Fika</a><div class="d-flex fika-align-center"><b>Alt+R (Option+R)</b>: to open Fika  <b class="ml-2">Esc</b>: to close reader mode</div></div></div><!--message toast--><div class="fika-toast"><span id="fika-toast-msg"></span><a class="ml-5" id="fika-toast-close">close</a></div><!--background photo--><div class="fika-bg"></div><div class="fika-loading" id="fika-loading-bg" style="display: none;position: fixed;right: 24px;bottom: 24px;"></div><a class="fika-bg-credit" target="_blank"></a></div></div><editor-card style="position:absolute;top:0px;left:0px;z-index:auto;display: block !important"><div dir="ltr" style="all: initial;"><div style="color: initial; font: initial; font-feature-settings: initial; font-kerning: initial; font-optical-sizing: initial; font-variation-settings: initial; text-orientation: initial; text-rendering: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; animation: initial; appearance: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-inline: initial; inset: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; color-scheme: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-size: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; empty-cells: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; inline-size: initial; inset-block: initial; inset-inline: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask: initial; mask-type: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; offset: initial; opacity: initial; order: initial; origin-trial-test-property: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-wrap: initial; overflow: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position: absolute; quotes: initial; r: initial; resize: initial; ruby-position: initial; rx: initial; ry: initial; scroll-behavior: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-size-adjust: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; user-select: initial; vector-effect: initial; vertical-align: initial; visibility: initial; -webkit-app-region: initial; border-spacing: initial; -webkit-border-image: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-highlight: initial; -webkit-hyphenate-character: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-mask: initial; -webkit-mask-composite: initial; -webkit-perspective-origin-x: initial; -webkit-perspective-origin-y: initial; -webkit-print-color-adjust: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-emphasis: initial; -webkit-text-emphasis-position: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-transform-origin-x: initial; -webkit-transform-origin-y: initial; -webkit-transform-origin-z: initial; -webkit-user-drag: initial; -webkit-user-modify: initial; white-space: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"><link rel="stylesheet" href="chrome-extension://gpaiobkfhnonedkhhfjpmhdalgeoebfa/fonts/fabric-icons.css"><div style="all: initial;"></div></div></div></editor-card></html>
