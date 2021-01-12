@@ -466,7 +466,7 @@ app.get('/me/current', async function (req, resApp) { // docs - input token & ap
             .redirects(0)
             .end(async (err, res) => {
                 var $ = cheerio.load(res.text)
-
+                // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                 /** Dev
                  * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
                  */
@@ -508,6 +508,7 @@ app.get('/me/current', async function (req, resApp) { // docs - input token & ap
                 .redirects(0)
                 .end((err, resFuture) => {
                     let futureTourn = cheerio.load(resFuture.text)
+                    // let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                     var timeArray = []
                     var tournamentStart = null;
                     for (i = 0; i < futureTourn('#upcoming').children('tbody').children('tr').length; i++) {
@@ -569,6 +570,7 @@ app.get('/me/current', async function (req, resApp) { // docs - input token & ap
                         roundInfo.oppoent = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[4]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
                         roundInfo.judge = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span')[0].attribs.title
                         roundInfo.paradigmLink = "https://www.tabroom.com" + $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
+                        // ^ downloaded html files have the their links amended with the domain - so this is broken on downloaded html files
 
                         currentEntries.push(roundInfo)
 
