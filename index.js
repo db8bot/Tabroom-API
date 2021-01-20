@@ -616,18 +616,55 @@ app.get('/paradigm', (req, resApp) => {
             .set('Content-Type', 'application/x-www-form-urlencoded')
             .redirects(0)
             .send(JSON.parse(`{"search_first": "${req.body.first}", "search_last": "${req.body.last}"}`))
-            .end((err, res) => {
+            .end(async (err, res) => {
                 var $ = cheerio.load(res.text)
+                var returnData = []
+                var judgeLink = ""
                 /**
                  * loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
                  */
+                if (res.text.includes(`returned no judges with paradigms.`)) {
+                    resApp.sendStatus(204)
+                    return;
+                }
+                if (res.text.includes(`Paradigm search results`)) { // multiple results from search
+                    for (x = 0; x < $("#paradigm_search").children('tbody').children('tr').length; x++) { // check how many results would result
+                        judgeLink = "https://www.tabroom.com/index/" + $($($("#paradigm_search").children('tbody').children('tr')[x]).children('td')[3]).children('a')[0].attribs.href
+                        returnData.push(await paradigmSplitter($, req, resApp, judgeLink))
+                    }
+                    resApp.send(returnData)
+                } else {
+                    returnData = await paradigmWork(req, $, resApp)
+                    resApp.send(returnData)
+                }
+
+            })
+
+
+        function paradigmSplitter($, req, resApp, judgeLink) {
+            return new Promise((resolve, reject) => {
+                superagent
+                    .get(judgeLink)
+                    // .redirects(0)
+                    .end(async (err, resEachParadigm) => {
+                        // console.log(resEachParadigm.text)
+                        selectorResEachParadigm = cheerio.load(resEachParadigm.text)
+                        resolve(await paradigmWork(req, selectorResEachParadigm, resApp))
+                    })
+            })
+        }
+
+        async function paradigmWork(req, $, resApp) {
+            return new Promise((resolve, reject) => {
                 var roundJudgedInfo = null
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
                 judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
 
                 if (req.body.short == 'true') {
-                    resApp.send(judgeRecord)
+                    // resApp.send(judgeRecord)
+                    // return;
+                    resolve(judgeRecord)
                     return;
                 }
 
@@ -672,8 +709,9 @@ app.get('/paradigm', (req, resApp) => {
                     judgeRecord.push(roundJudgedInfo)
 
                 }
-                resApp.send(judgeRecord)
+                resolve(judgeRecord)
             })
+        }
     }
     else {
         superagent
@@ -684,6 +722,10 @@ app.get('/paradigm', (req, resApp) => {
                 /**
                  * loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
                  */
+                if (res.text.includes(`returned no judges with paradigms.`)) {
+                    resApp.sendStatus(204)
+                    return;
+                }
                 var roundJudgedInfo = null
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
