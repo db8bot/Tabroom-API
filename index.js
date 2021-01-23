@@ -649,18 +649,18 @@ app.get('/paradigm', (req, resApp) => {
                     .end(async (err, resEachParadigm) => {
                         // console.log(resEachParadigm.text)
                         selectorResEachParadigm = cheerio.load(resEachParadigm.text)
-                        resolve(await paradigmWork(req, selectorResEachParadigm, resApp))
+                        resolve(await paradigmWork(req, selectorResEachParadigm, resApp, judgeLink))
                     })
             })
         }
 
-        async function paradigmWork(req, $, resApp) {
+        async function paradigmWork(req, $, resApp, judgeLink) {
             return new Promise((resolve, reject) => {
                 var roundJudgedInfo = null
                 var judgeRecord = []
                 judgeRecord.push($('.paradigm').text())
                 judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
-
+                if (judgeLink != null) judgeRecord.push(judgeLink)
                 if (req.body.short == 'true') {
                     // resApp.send(judgeRecord)
                     // return;
