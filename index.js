@@ -51,7 +51,7 @@ app.post('/login', (req, resApp) => {
 })
 
 
-app.get('/test', (req, resApp) => {
+app.post('/test', (req, resApp) => {
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
@@ -60,7 +60,7 @@ app.get('/test', (req, resApp) => {
     resApp.send('Test Successful')
 })
 
-app.get('/me/test', (req, resApp) => {
+app.post('/me/test', (req, resApp) => {
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
@@ -81,7 +81,7 @@ app.get('/me/test', (req, resApp) => {
         })
 })
 
-app.get('/me', async function (req, resApp) {
+app.post('/me', async function (req, resApp) {
     // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
@@ -162,7 +162,7 @@ app.get('/me', async function (req, resApp) {
 
 })
 
-app.get('/me/results', async function (req, resApp) {
+app.post('/me/results', async function (req, resApp) {
     /**
      * @param {Object} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY & Short: a integer representing the number of months to go back when collecting records. Ex: short = 2 will only collect records from tournnaments that were held 2 months ago from today. Encode: X-WWW-FORM-URLENCODED - USE "short" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com token', 'short': '2'}
@@ -379,7 +379,7 @@ app.get('/me/results', async function (req, resApp) {
 
 
 
-app.get('/me/future', (req, resApp) => {
+app.post('/me/future', (req, resApp) => {
     /**
      * @param {Object} -> Token: User's Tabroom.com token - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com Token'}
@@ -452,7 +452,7 @@ app.get('/me/future', (req, resApp) => {
 
 })
 
-app.get('/me/current', async function (req, resApp) { // docs - input token & api auth
+app.post('/me/current', async function (req, resApp) { // docs - input token & api auth
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
@@ -586,7 +586,7 @@ app.get('/me/current', async function (req, resApp) { // docs - input token & ap
 })
 
 
-app.get('/paradigm', (req, resApp) => {
+app.post('/paradigm', (req, resApp) => {
     /**
      * @param {object} -> EITHER:
      *  {type: "name", first: "john", last: "appleseed"}
@@ -781,7 +781,7 @@ app.get('/paradigm', (req, resApp) => {
     }
 })
 
-app.get('/upcoming', (req, resApp) => {
+app.post('/upcoming', (req, resApp) => {
 
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
@@ -832,7 +832,7 @@ app.get('/upcoming', (req, resApp) => {
 })
 
 
-app.get('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
+app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
