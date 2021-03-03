@@ -452,7 +452,7 @@ app.post('/me/future', (req, resApp) => {
 
 })
 
-app.post('/me/current', async function (req, resApp) { // docs - input token & api auth
+app.post('/me/current', async function (req, resApp) { // docs - input token & api auth || **CHANGED**
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
@@ -465,8 +465,8 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
             .set("Cookie", req.body.token)
             .redirects(0)
             .end(async (err, res) => {
-                var $ = cheerio.load(res.text)
-                // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                // var $ = cheerio.load(res.text)
+                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                 /** Dev
                  * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
                  */
@@ -500,15 +500,15 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
     }
 
 
-    async function roundCalcs(currentEntries, $, roundInfo) {
+    async function roundCalcs(currentEntries, $, roundInfo) { // CHANGED
         return new Promise((resolve, reject) => {
             superagent
                 .get(`https://www.tabroom.com/user/student/index.mhtml?default=future`)
                 .set("Cookie", req.body.token)
                 .redirects(0)
                 .end((err, resFuture) => {
-                    let futureTourn = cheerio.load(resFuture.text)
-                    // let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                    // let futureTourn = cheerio.load(resFuture.text)
+                    let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                     var timeArray = []
                     var tournamentStart = null;
                     for (i = 0; i < futureTourn('#upcoming').children('tbody').children('tr').length; i++) {
