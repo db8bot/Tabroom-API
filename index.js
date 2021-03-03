@@ -379,7 +379,7 @@ app.post('/me/results', async function (req, resApp) {
 
 
 
-app.post('/me/future', (req, resApp) => {
+app.post('/me/future', (req, resApp) => { //CHANGED
     /**
      * @param {Object} -> Token: User's Tabroom.com token - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com Token'}
@@ -397,8 +397,9 @@ app.post('/me/future', (req, resApp) => {
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            var $ = cheerio.load(res.text)
-
+            // var $ = cheerio.load(res.text)
+            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            
             if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
                 resApp.status(403)
                 resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
