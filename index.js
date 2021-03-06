@@ -399,7 +399,7 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         .end((err, res) => {
             // var $ = cheerio.load(res.text)
             var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
-            
+
             if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
                 resApp.status(403)
                 resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
@@ -876,6 +876,45 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
 
 })
 
+app.post('/getprelimrecord', (req, resApp) => {
+    // input: eventLink with event id, team/oppoent code
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
+    superagent
+        .get(req.body.eventLink)
+        .redirects(0)
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+            var link = null
+
+            for (i = 0; i < $('.sidenote').children('a').length; i++) {
+                if ($('.sidenote').children('a')[i].attribs.class.includes('dkblue')) {
+                    link = "https://www.tabroom.com/index/tourn/" + $('.sidenote').children('a')[i].attribs.href.replace('events.mhtml?', 'results/ranked_list.mhtml?')
+                    break;
+                }
+            }
+
+            superagent
+                .get(link)
+                .redirects(10)
+                .end((err, res) => {
+                    var $ = cheerio.load(res.text)
+                    for (i = 0; i < $('#ranked_list').children('tbody').children('tr').length; i++) {
+                        if ($($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2]).text().trim() === req.body.code) {
+                            resApp.send({
+                                "record": $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                "recordLink": "https://www.tabroom.com" + ($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name === 'a').attribs.href)
+                            })
+                            break;
+                        }
+                    }
+                })
+        })
+})
 
 
 port = process.env.PORT;
