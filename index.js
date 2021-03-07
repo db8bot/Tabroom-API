@@ -669,8 +669,13 @@ app.post('/paradigm', (req, resApp) => {
                     return;
                 }
 
-                // round judged limit to 170 rounds
-                var roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+                // round judged limit 
+                var roundJudgedLen = null
+                if (req.body.roundLimit > 170) {
+                    roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+                } else if (req.body.roundLimit <= 170) {
+                    roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), req.body.roundLimit)
+                }
 
                 for (i = 0; i < roundJudgedLen; i++) {
                     roundJudgedInfo = {
