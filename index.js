@@ -925,6 +925,29 @@ app.post('/getprelimrecord', (req, resApp) => {
         })
 })
 
+app.post('/jitsiurl', (req, resApp) => {
+    // input: jwt key, tabroomapi auth token
+    if (!apiKey.includes(req.body.apiauth)) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return;
+    }
+
+    superagent
+        .post('https://campus.speechanddebate.org/')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .send(JSON.parse(`{"json":"${req.body.jwt}"}`))
+        .redirects(10)
+        .end((err, res) => {
+            var $ = cheerio.load(res.text)
+            var scriptStr = $("script:nth-child(5)", "body").html()
+            var uuid = scriptStr.match(/uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*"/g)[0].replace('uuid:"',"").replace('"',"")
+            var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', "").replace('"', "")
+            resApp.send(`https://meet-west.speechanddebate.org/${uuid}?jwt=${jwt}`)
+        })
+
+})
+
 
 port = process.env.PORT;
 if (port == null || port == "") {
