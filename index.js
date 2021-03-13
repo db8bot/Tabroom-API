@@ -17,6 +17,10 @@ app.use(cookieParser())
  * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
 
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+})
 
 app.post('/login', (req, resApp) => {
     /**
@@ -941,7 +945,7 @@ app.post('/jitsiurl', (req, resApp) => {
         .end((err, res) => {
             var $ = cheerio.load(res.text)
             var scriptStr = $("script:nth-child(5)", "body").html()
-            var uuid = scriptStr.match(/uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*"/g)[0].replace('uuid:"',"").replace('"',"")
+            var uuid = scriptStr.match(/uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*"/g)[0].replace('uuid:"', "").replace('"', "")
             var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', "").replace('"', "")
             resApp.send(`https://meet-west.speechanddebate.org/${uuid}?jwt=${jwt}`)
         })
