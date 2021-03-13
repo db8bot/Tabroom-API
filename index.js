@@ -19,7 +19,9 @@ app.use(cookieParser())
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 })
 
 app.post('/login', (req, resApp) => {
@@ -401,8 +403,8 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            // var $ = cheerio.load(res.text)
-            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            var $ = cheerio.load(res.text)
+            // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
 
             if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
                 resApp.status(403)
@@ -470,8 +472,8 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
             .set("Cookie", req.body.token)
             .redirects(0)
             .end(async (err, res) => {
-                // var $ = cheerio.load(res.text)
-                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                var $ = cheerio.load(res.text)
+                // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                 /** Dev
                  * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
                  */
@@ -512,8 +514,8 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                 .set("Cookie", req.body.token)
                 .redirects(0)
                 .end((err, resFuture) => {
-                    // let futureTourn = cheerio.load(resFuture.text)
-                    let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                    let futureTourn = cheerio.load(resFuture.text)
+                    // let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                     var timeArray = []
                     var tournamentStart = null;
                     for (i = 0; i < futureTourn('#upcoming').children('tbody').children('tr').length; i++) {
