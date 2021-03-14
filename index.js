@@ -565,7 +565,7 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                         roundStartDate.setDate(tournamentStart.getDate() + (Math.abs(roundDayNumber[roundInfo.startTime.split(' ')[0]] - tournamentStart.getDay())))
 
                         var splitTimeArr = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[1]).text().trim().replace(/\t/g, "").split('\n')
-                        roundInfo.startTimeUnix = Date.parse(roundStartDate.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' '))
+                        roundInfo.startTimeUnix = Date.parse(roundStartDate.toDateString() + " " + (splitTimeArr[0] + " " + splitTimeArr[1]).split(' ').slice(1).join(' ').replace('undefined', "").trim())
 
                         if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
                             roundInfo.room = 'Jitsi Meet/NSDA Campus'
