@@ -403,8 +403,8 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            var $ = cheerio.load(res.text)
-            // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            // var $ = cheerio.load(res.text)
+            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
 
             if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
                 resApp.status(403)
@@ -472,8 +472,8 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
             .set("Cookie", req.body.token)
             .redirects(0)
             .end(async (err, res) => {
-                var $ = cheerio.load(res.text)
-                // var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                // var $ = cheerio.load(res.text)
+                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                 /** Dev
                  * var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com1.html`))
                  */
@@ -514,8 +514,8 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                 .set("Cookie", req.body.token)
                 .redirects(0)
                 .end((err, resFuture) => {
-                    let futureTourn = cheerio.load(resFuture.text)
-                    // let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                    // let futureTourn = cheerio.load(resFuture.text)
+                    let futureTourn = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
                     var timeArray = []
                     var tournamentStart = null;
                     for (i = 0; i < futureTourn('#upcoming').children('tbody').children('tr').length; i++) {
@@ -758,6 +758,7 @@ app.post('/paradigm', (req, resApp) => {
                 for (i = 0; i < roundJudgedLen; i++) {
                     roundJudgedInfo = {
                         "tournament": "",
+                        "level": "",
                         "date": "",
                         "timestamp": "",
                         "event": "",
@@ -770,21 +771,23 @@ app.post('/paradigm', (req, resApp) => {
 
                     roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').next.data.trim()
+                    roundJudgedInfo.level = $($($('#record').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
 
-                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').next.data.trim()
 
-                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+
+                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[8].children.find(child => child.type == 'text').data.trim()
 
                     /** Debugging
                      * break;
