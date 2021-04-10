@@ -581,7 +581,6 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                         roundInfo.paradigmLink = "https://www.tabroom.com" + $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
                         // ^ downloaded html files have the their links amended with the domain - so this is broken on downloaded html files
 
-                        console.log(roundInfo)
                         currentEntries.push(roundInfo)
 
 
