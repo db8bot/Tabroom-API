@@ -537,6 +537,7 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                             "startTime": null,
                             "startTimeUnix": null,
                             "room": null, // post x-www-url-encoded with key
+                            "nsdaCampusJWT": null,
                             "side": null,
                             "oppoent": null,
                             "judge": null,
@@ -569,6 +570,7 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
 
                         if ($($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).html().includes('campus.speechanddebate.org')) {
                             roundInfo.room = 'Jitsi Meet/NSDA Campus'
+                            roundInfo.nsdaCampusJWT = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[0]).children('td')[2]).children('form').children('input').val()
                         } else {
                             roundInfo.room = $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[2]).text().trim().replace(/\t/g, "").replace(/\n/g, "")
                         }
@@ -579,6 +581,7 @@ app.post('/me/current', async function (req, resApp) { // docs - input token & a
                         roundInfo.paradigmLink = "https://www.tabroom.com" + $($($($('.full.nospace.martopmore', '.screens.current').children('table')[0]).children('tbody').children('tr')[i]).children('td')[5]).children('div').children('span').children('span').children('a')[0].attribs.href
                         // ^ downloaded html files have the their links amended with the domain - so this is broken on downloaded html files
 
+                        console.log(roundInfo)
                         currentEntries.push(roundInfo)
 
 
@@ -678,13 +681,13 @@ app.post('/paradigm', (req, resApp) => {
                 // round judged limit 
                 var roundJudgedLen = null
                 if (req.body.roundLimit != undefined) {
-                    if (req.body.roundLimit > 170) {
-                        roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
-                    } else if (req.body.roundLimit <= 170) {
+                    if (req.body.roundLimit > 200) {
+                        roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 200)
+                    } else if (req.body.roundLimit <= 200) {
                         roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), req.body.roundLimit)
                     }
                 } else {
-                    roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+                    roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 200)
                 }
 
                 for (i = 0; i < roundJudgedLen; i++) {
@@ -700,23 +703,34 @@ app.post('/paradigm', (req, resApp) => {
                         "result": ""
                     }
 
-                    roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    if (req.body.basecamp == 'true') {
+                        roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').next.data.trim()
+                        roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
+                    } else {
+                        roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.level = $($($('#record').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
 
-                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').next.data.trim()
 
-                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                        roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                        roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+
+                        roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[8].children.find(child => child.type == 'text').data.trim()
+
+                    }
 
                     /** Debugging
                      * break;
@@ -753,7 +767,15 @@ app.post('/paradigm', (req, resApp) => {
                 }
 
                 // round judged limit to 170 rounds
-                var roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 170)
+                if (req.body.roundLimit != undefined) {
+                    if (req.body.roundLimit > 200) {
+                        roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 200)
+                    } else if (req.body.roundLimit <= 200) {
+                        roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), req.body.roundLimit)
+                    }
+                } else {
+                    roundJudgedLen = Math.min(parseInt($('#record').children('tbody').children('tr').length), 200)
+                }
 
                 for (i = 0; i < roundJudgedLen; i++) {
                     roundJudgedInfo = {
@@ -769,25 +791,34 @@ app.post('/paradigm', (req, resApp) => {
                         "result": ""
                     }
 
-                    roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    if (req.body.basecamp == 'true') {
+                        roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.level = $($($('#record').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
+                        roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').next.data.trim()
+                        roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
+                    } else {
+                        roundJudgedInfo.tournament = $($('#record').children('tbody').children('tr')[i]).children('td')[0].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.level = $($($('#record').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
 
-                    roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.date = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').next.data.trim()
 
-                    roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.timestamp = $($('#record').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name == 'span').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.event = $($('#record').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.round = $($('#record').children('tbody').children('tr')[i]).children('td')[4].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.affTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[5].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
 
-                    roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[8].children.find(child => child.type == 'text').data.trim()
+                        roundJudgedInfo.negTeamCode = $($('#record').children('tbody').children('tr')[i]).children('td')[6].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+
+                        roundJudgedInfo.judgeVote = $($('#record').children('tbody').children('tr')[i]).children('td')[7].children.find(child => child.type == 'text').data.trim()
+
+                        roundJudgedInfo.result = $($('#record').children('tbody').children('tr')[i]).children('td')[8].children.find(child => child.type == 'text').data.trim()
+
+                    }
 
                     /** Debugging
                      * break;
@@ -920,16 +951,19 @@ app.post('/getprelimrecord', (req, resApp) => {
                 .get(link)
                 .redirects(10)
                 .end((err, res) => {
+
                     var $ = cheerio.load(res.text)
                     for (i = 0; i < $('#ranked_list').children('tbody').children('tr').length; i++) {
                         if ($($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2]).text().trim() === req.body.code) {
                             resApp.send({
-                                "record": $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                "recordW": $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                "recordL": $("#ranked_list_buttonarea").text().trim(),
                                 "recordLink": "https://www.tabroom.com" + ($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name === 'a').attribs.href)
                             })
                             break;
                         }
                     }
+
                 })
         })
 })
