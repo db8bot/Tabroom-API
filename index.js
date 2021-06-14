@@ -17,6 +17,22 @@ app.use(cookieParser())
  * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
 
+function tabroomTokenTest(req, resApp) {
+    superagent
+        .get('https://www.tabroom.com/user/student/index.mhtml')
+        .set("Cookie", req.body.token)
+        .redirects(0)
+        .end((err, res) => {
+            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
+                resApp.status(403)
+                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                return false;
+            } else {
+                return 'Test Successful'
+            }
+        })
+}
+
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
@@ -28,6 +44,7 @@ app.post('/login', (req, resApp) => {
     /**
     * @param {Object} -> Username: Tabroom email & Password: Tabroom password EX: { username: 'yfang@ex.org', password: 'password' } - Encode: X-WWW-FORM-URLENCODED
     * @returns {Object} -> Token: Tabroom Token (Format: Cookie) & Expiration: Tabroom Token Expiration Date (GMT)
+    * Note this is unsecure as it requires a user's raw credentials to be passed to a server. authentication should be done on the client side using the same method here.
     */
 
     if (!apiKey.includes(req.body.apiauth)) {
@@ -66,25 +83,17 @@ app.post('/test', (req, resApp) => {
     resApp.send('Test Successful')
 })
 
+// this probably needs to be split in to a seperate function 
 app.post('/me/test', (req, resApp) => {
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
-    superagent
-        .get('https://www.tabroom.com/user/student/index.mhtml')
-        .set("Cookie", req.body.token)
-        .redirects(0)
-        .end((err, res) => {
-            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
-                resApp.status(403)
-                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
-                return false;
-            } else {
-                resApp.send('Test Successful')
-            }
-        })
+
+    if (tabroomTokenTest(req, resApp) === 'Test Successful') {
+        resApp.send('Test Successful!')
+    }
 })
 
 app.post('/me', async function (req, resApp) {
