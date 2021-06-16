@@ -17,20 +17,24 @@ app.use(cookieParser())
  * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
 
-function tabroomTokenTest(req, resApp) {
-    superagent
-        .get('https://www.tabroom.com/user/student/index.mhtml')
-        .set("Cookie", req.body.token)
-        .redirects(0)
-        .end((err, res) => {
-            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
-                resApp.status(403)
-                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
-                return false;
-            } else {
-                return 'Test Successful'
-            }
-        })
+async function tabroomTokenTest(req, resApp) {
+
+    return new Promise((resolve, reject) => {
+        superagent
+            .get('https://www.tabroom.com/user/student/index.mhtml')
+            .set("Cookie", req.body.token)
+            .redirects(0)
+            .end((err, res) => {
+                if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
+                    resApp.status(403)
+                    resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                    resolve(false)
+                }
+                else {
+                    resolve(true)
+                }
+            })
+    })
 }
 
 app.use(function (req, res, next) {
@@ -79,21 +83,22 @@ app.post('/test', (req, resApp) => {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
+    } else {
+        resApp.send('Test Successful')
     }
-    resApp.send('Test Successful')
 })
 
 // this probably needs to be split in to a seperate function 
-app.post('/me/test', (req, resApp) => {
+app.post('/me/test', async (req, resApp) => {
     if (!apiKey.includes(req.body.apiauth)) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
-
-    if (tabroomTokenTest(req, resApp) === 'Test Successful') {
-        resApp.send('Test Successful!')
+    if (await tabroomTokenTest(req, resApp)) {
+        resApp.send('Test Successful')
     }
+
 })
 
 app.post('/me', async function (req, resApp) {
@@ -123,7 +128,6 @@ app.post('/me', async function (req, resApp) {
                     'nameFirst': null,
                     'nameLast': null,
                     'email': null,
-                    'timezone': null,
                     'pronouns': null
                 }
 
@@ -133,6 +137,7 @@ app.post('/me', async function (req, resApp) {
                     // token out of date
                     resApp.status(403)
                     resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                    return;
                 }
 
                 userInfo.nsdaPoints = $($($('#content .main').children('div')[0]).children('span')[1]).children('div')[1].children.find(child => child.type == 'text').data.trim().replace(/\D/g, '')
@@ -158,17 +163,15 @@ app.post('/me', async function (req, resApp) {
                 .set("Cookie", req.body.token)
                 .end((err, res) => {
                     var $ = cheerio.load(res.text)
+
                     // history @ 0, tournament row @ 0
-                    userInfo.nameFirst = $($($($($('#content .main').children('form')[0]).children('span')[0]).children('div')[0]).children('span')[1]).children('input[type=text][name=first]').val()
+                    userInfo.nameFirst = $($('[name="first"]')[0]).attr('value')
 
-                    userInfo.nameLast = $($($($($('#content .main').children('form')[0]).children('span')[0]).children('div')[2]).children('span')[1]).children('input[type=text][name=last]').val()
+                    userInfo.nameLast = $($('[name="last"]')[0]).attr('value')
 
-                    userInfo.email = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[0]).children('span')[1]).children('input[type=text][name=email]').val()
+                    userInfo.email = $($('[name="email"]')[0]).attr('value')
 
-                    // $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[3]).children('span')[1]).children("select").val()
-                    userInfo.timezone = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[3]).children('span')[1]).children("select").find('option:selected').text().trim()
-
-                    userInfo.pronouns = $($($($($('#content .main').children('form')[0]).children('span')[1]).children('div')[4]).children('span')[1]).children('input[type=text][name=pronoun]').val().trim()
+                    userInfo.pronouns = $($('[name="pronoun"]')[0]).attr('value')
 
                     resolve(userInfo)
                 })
@@ -191,6 +194,8 @@ app.post('/me/results', async function (req, resApp) {
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
+
+    if (!tabroomTokenTest(req, resApp)) return
 
     let resData = "";
 
@@ -407,6 +412,8 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         return;
     }
 
+    if (!tabroomTokenTest(req, resApp)) return
+
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml?default=future')
         .set("Cookie", req.body.token)
@@ -414,12 +421,6 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         .end((err, res) => {
             // var $ = cheerio.load(res.text)
             var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
-
-            if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
-                resApp.status(403)
-                resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
-                return;
-            }
 
             var futureList = []
             var futureTournament = null
@@ -896,40 +897,91 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
         resApp.send('Invalid API Key or no authentication provided.')
         return;
     }
+    if (!req.body.eventLink.includes('event_id')) { // link such as this: https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=20262
+        superagent
+            .get(`https://www.tabroom.com/index/tourn/events.mhtml?tourn_id=${req.body.eventLink.replace('https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=', "")}`)
+            .redirects(0)
+            .end(async (err, res) => {
+                var $ = cheerio.load(res.text)
+                var eventLinks = []
+                eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="dkblue half nowrap marvertno"]')[0]).attr('href')}`).replace('events', 'fields'))
+                for (i = 0; i < $('[class="blue half nowrap marvertno"]').length; i++) {
+                    eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="blue half nowrap marvertno"]')[i]).attr('href')}`).replace('events', 'fields'))
+                }
 
-    superagent
-        .get(req.body.eventLink)
-        .redirects(0)
-        .end((err, res) => {
-            var $ = cheerio.load(res.text)
+                eventSearchDeliver(req, eventLinks, resApp)
+            })
 
-            var entryRequestLink = "https://www.tabroom.com" + $('#tabnav > li:nth-child(2) > a')[0].attribs.href + "&event_id=" + req.body.eventLink.substring(req.body.eventLink.indexOf('event_id=') + 9)
-
-            superagent
-                .get(entryRequestLink)
-                .redirects(0)
-                .end((err, resSecond) => {
-                    var $ = cheerio.load(resSecond.text)
-
-                    for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
-
-                        if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
-                            resApp.send({
-                                "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
-                                "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
-                                "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
-                                "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
-                                "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
-                            })
-                            return;
+        async function eventSearchDeliver(req, eventLinks, resApp) {
+            var searchResults = []
+            for (i = 0; i < eventLinks.length; i++) {
+                searchResults.push(eventSearch(req, eventLinks[i]))
+            }
+            // https://medium.com/@chrisjr06/why-and-how-to-avoid-await-in-a-for-loop-32b86722171
+            searchResults = await Promise.all(searchResults)
+            await resApp.send(searchResults.filter(x => x != undefined))
+        }
+        async function eventSearch(req, link) {
+            return new Promise((resolve, reject) => {
+                superagent
+                    .get(link)
+                    .redirects(0)
+                    .end(async (err, res) => {
+                        var $ = cheerio.load(res.text)
+                        for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
+                            if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
+                                resolve({
+                                    "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                    "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
+                                    "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
+                                    "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
+                                    "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+                                })
+                            }
                         }
+                        resolve()
+                    })
+            })
+        }
+    } else {  // if this is an event link
 
-                    }
-                    resApp.status(404)
-                    resApp.send(`Entry not found.`)
-                })
+        superagent
+            .get(req.body.eventLink)
+            .redirects(0)
+            .end((err, res) => {
+                var $ = cheerio.load(res.text)
 
-        })
+
+                var entryRequestLink = "https://www.tabroom.com" + $('#tabnav > li:nth-child(2) > a')[0].attribs.href + "&event_id=" + req.body.eventLink.substring(req.body.eventLink.indexOf('event_id=') + 9)
+
+                console.log(entryRequestLink)
+
+                superagent
+                    .get(entryRequestLink)
+                    .redirects(0)
+                    .end((err, resSecond) => {
+                        var $ = cheerio.load(resSecond.text)
+
+                        for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
+
+                            if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
+                                resApp.send({
+                                    "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                    "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
+                                    "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
+                                    "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
+                                    "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+                                })
+                                return;
+                            }
+
+                        }
+                        resApp.status(404)
+                        resApp.send(`Entry not found.`)
+                    })
+
+            })
+    }
 
 })
 
@@ -965,12 +1017,14 @@ app.post('/getprelimrecord', (req, resApp) => {
                         if ($($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2]).text().trim() === req.body.code) {
                             resApp.send({
                                 "recordW": $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
-                                "recordL": $("#ranked_list_buttonarea").text().trim(),
+                                "recordL": "" + ($("#ranked_list_buttonarea").text().trim() - $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim()),
                                 "recordLink": "https://www.tabroom.com" + ($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name === 'a').attribs.href)
                             })
-                            break;
+                            return;
                         }
                     }
+                    resApp.status(404)
+                    resApp.send('Not Found')
 
                 })
         })
