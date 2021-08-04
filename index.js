@@ -259,10 +259,16 @@ app.post('/paradigm', (req, resApp) => {
         requestLink = req.body.link
     }
     const { start } = require('./modules/paradigm')
-    Promise.all([start(req, requestLink)]).then(val => {
-        resApp.send(val[0])
-    }).catch(err => {
-        console.error(err)
+    start(req, requestLink, (err, res) => {
+        if (err) {
+            resApp.sendStatus(500)
+            resApp.send(err)
+        }
+        if (res === 204) {
+            resApp.sendStatus(204)
+        } else {
+            resApp.send(res)
+        }
     })
 })
 
