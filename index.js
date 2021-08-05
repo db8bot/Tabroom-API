@@ -13,9 +13,7 @@ app.use(cookieParser())
  * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
  * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
-
 function tabroomTokenTest(req, resApp) {
-
     return new Promise((resolve, reject) => {
         superagent
             .get('https://www.tabroom.com/user/student/index.mhtml')
@@ -34,11 +32,23 @@ function tabroomTokenTest(req, resApp) {
     })
 }
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+if (process.env.PORT == null || process.env.PORT == "") { // for dev purposes
+    app.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    })
+}
+
+app.get('/_ah/warmup', (req, resApp) => { // google cloud warmup request: https://cloud.google.com/appengine/docs/standard/nodejs/configuring-warmup-requests
+    app.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    })
+    resApp.sendStatus(200)
 })
 
 app.post('/login', (req, resApp) => {
@@ -112,7 +122,7 @@ app.post('/me', async function (req, resApp) {
     })
 })
 
-app.post('/me/results', async function (req, resApp) {
+app.post('/me/results', async function (req, resApp) { // update docs, return format changed.
     /**
      * @param {Object} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY & Short: a integer representing the number of months to go back when collecting records. Ex: short = 2 will only collect records from tournnaments that were held 2 months ago from today. Encode: X-WWW-FORM-URLENCODED - USE "short" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com token', 'short': '2'}
