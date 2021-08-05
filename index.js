@@ -1,15 +1,12 @@
 const express = require('express')
-const { response } = require('express');
 const cheerio = require('cheerio');
 const superagent = require('superagent');
 const apiKey = require('./apiKeys.json')
 const fs = require('fs')
-var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-const { fileURLToPath } = require('url');
 var app = express()
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 /**
@@ -333,7 +330,7 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
         superagent
             .get(`https://www.tabroom.com/index/tourn/events.mhtml?tourn_id=${req.body.eventLink.replace('https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=', "")}`)
             .redirects(0)
-            .end(async (err, res) => {
+            .end((err, res) => {
                 var $ = cheerio.load(res.text)
                 var eventLinks = []
                 eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="dkblue half nowrap marvertno"]')[0]).attr('href')}`).replace('events', 'fields'))
@@ -341,24 +338,23 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
                     eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="blue half nowrap marvertno"]')[i]).attr('href')}`).replace('events', 'fields'))
                 }
 
-                eventSearchDeliver(req, eventLinks, resApp)
+                // eventSearchDeliver(req, eventLinks, resApp)
+                var searchResults = []
+                for (i = 0; i < eventLinks.length; i++) {
+                    searchResults.push(eventSearch(req, eventLinks[i]))
+                }
+                // https://medium.com/@chrisjr06/why-and-how-to-avoid-await-in-a-for-loop-32b86722171
+                Promise.all(searchResults).then(val => {
+                    resApp.send(val.filter(x => x != undefined))
+                })
             })
 
-        async function eventSearchDeliver(req, eventLinks, resApp) {
-            var searchResults = []
-            for (i = 0; i < eventLinks.length; i++) {
-                searchResults.push(eventSearch(req, eventLinks[i]))
-            }
-            // https://medium.com/@chrisjr06/why-and-how-to-avoid-await-in-a-for-loop-32b86722171
-            searchResults = await Promise.all(searchResults)
-            await resApp.send(searchResults.filter(x => x != undefined))
-        }
-        async function eventSearch(req, link) {
+        function eventSearch(req, link) {
             return new Promise((resolve, reject) => {
                 superagent
                     .get(link)
                     .redirects(0)
-                    .end(async (err, res) => {
+                    .end((err, res) => {
                         var $ = cheerio.load(res.text)
                         for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
                             if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
@@ -369,6 +365,7 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
                                     "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
                                     "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
                                 })
+                                return;
                             }
                         }
                         resolve()
@@ -414,6 +411,7 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
 
             })
     }
+    // add functionality to get entries from links like: https://www.tabroom.com/index/tourn/fields.mhtml?tourn_id=20262&event_id=175214
 
 })
 
