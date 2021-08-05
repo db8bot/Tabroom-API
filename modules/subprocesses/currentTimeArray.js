@@ -7,8 +7,11 @@ process.on('message', (token) => {
         .set("Cookie", token)
         .redirects(0)
         .end((err, resFuture) => {
-            // let futureTourn = cheerio.load(resFuture.text)
-            let futureTourn = cheerio.load(fs.readFileSync('./dev/Tabroom.com ASU rd5 included.html'))
+            if (process.env.PORT == null || process.env.PORT == "") { // dev
+                var futureTourn = cheerio.load(fs.readFileSync('./dev/Tabroom.com ASU rd5 included.html'))
+            } else {
+                var futureTourn = cheerio.load(resFuture.text)
+            }
 
             var timeArray = []
             var tournamentStart = null;
@@ -18,7 +21,7 @@ process.on('message', (token) => {
             timeArray.sort((a, b) => a - b)
             for (i = 0; i < timeArray.length; i++) {
                 if (Date.parse(futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()) === timeArray[0]) {
-                    // eventLink = "https://www.tabroom.com" + futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href
+                    // eventLink = "https://www.tabroom.com" + futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href - not used
                     tournamentStart = futureTourn(futureTourn(futureTourn('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
                     break;
                 }

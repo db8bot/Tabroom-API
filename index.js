@@ -172,8 +172,11 @@ app.post('/me/future', (req, resApp) => { //CHANGED
         .set("Cookie", req.body.token)
         .redirects(0)
         .end((err, res) => {
-            // var $ = cheerio.load(res.text)
-            var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            if (process.env.PORT == null || process.env.PORT == "") {
+                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            } else {
+                var $ = cheerio.load(res.text)
+            }
 
             var futureList = []
             var futureTournament = null
@@ -498,5 +501,6 @@ port = process.env.PORT;
 if (port == null || port == "") {
     port = 8080;
 }
-app.listen(port)
-console.log(`Listening at http://localhost:${port}`)
+app.listen(port, () => {
+    console.log(`Listening at http://localhost:${port}`)
+})

@@ -12,8 +12,11 @@ function basicTournamentInfo(token) {
             .set("Cookie", token)
             .redirects(0)
             .end((err, res) => {
-                // var $ = cheerio.load(res.text)
-                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                if (process.env.PORT == null || process.env.PORT == "") {
+                    var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+                } else {
+                    var $ = cheerio.load(res.text)                
+                }
 
                 if ($('.screens.current').children().length === 1) { // no current entries
                     resolve(204) // resolve 204
