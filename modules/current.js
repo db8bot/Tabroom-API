@@ -20,6 +20,7 @@ function basicTournamentInfo(token) {
 
                 if ($('.screens.current').children().length === 1) { // no current entries
                     resolve(204) // resolve 204
+                    return;
                 } else if ($('.screens.current').children().length > 1) {
                     var currentEntries = []
                     var basicInfo = {
