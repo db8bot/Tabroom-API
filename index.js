@@ -489,7 +489,7 @@ app.post('/jitsiurl', (req, resApp) => {
         .end((err, res) => {
             var $ = cheerio.load(res.text)
             var scriptStr = $("script:nth-child(5)", "body").html()
-            var uuid = scriptStr.match(/uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*"/g)[0].replace('uuid:"', "").replace('"', "")
+            var uuid = scriptStr.match(/(uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*")|(uuid:"[a-zA-Z0-9_.-]+")/g)[0].replace('uuid:"', "").replace('"', "")
             var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', "").replace('"', "")
             resApp.send(`https://meet-west.speechanddebate.org/${uuid}?jwt=${jwt}`)
         })
