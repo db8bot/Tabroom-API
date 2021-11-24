@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const superagent = require('superagent');
 const apiKey = require('./apiKeys.json')
 const fs = require('fs')
+const { randomBytes, createHash } = require('crypto');
 var cookieParser = require('cookie-parser');
 var app = express()
 app.use(express.json())
@@ -32,6 +33,16 @@ function tabroomTokenTest(req, resApp) {
     })
 }
 
+function generateAPIKey() {
+    var apiKey = randomBytes(36).toString('hex');
+    return { apiKey, hash(apiKey) }
+}
+
+function hash(apiKey) {
+    return createHash('sha256').update(apiKey).digest('hex');
+}
+
+// look into cors middleware
 if (process.env.PORT == null || process.env.PORT == "") { // for dev purposes
     app.use(function (req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
@@ -49,6 +60,13 @@ app.get('/_ah/warmup', (req, resApp) => { // google cloud warmup request: https:
         next();
     })
     resApp.sendStatus(200)
+})
+
+app.post('/getAPIKey', (req, resApp) => {
+    // post user details & hash to mongo
+    // name, debate circuit
+    // write hashed to file
+    // return unhashed
 })
 
 app.post('/login', (req, resApp) => {
