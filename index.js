@@ -1,19 +1,34 @@
 const express = require('express')
 const cheerio = require('cheerio');
 const superagent = require('superagent');
-const apiKey = require('./apiKeys.json')
+// const apiKey = require('./apiKeys.json')
 const fs = require('fs')
 const { randomBytes, createHash } = require('crypto');
 var cookieParser = require('cookie-parser');
+const MongoClient = require('mongodb').MongoClient
+const uri = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@apiscluster.hhd0v.mongodb.net/apikeys?retryWrites=true&w=majority`
+const database = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 var app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+async function getExistingApiKeys() {
+    const dbClient = await database.connect()
+    var existingKeys = await dbClient.db('apikeys').collection('keyList').find().toArray()
+    existingKeys = existingKeys[0]
+    delete existingKeys._id
+    existingKeys = existingKeys["keyArray"]
+    database.close()
+    return existingKeys
+}
+
+getExistingApiKeys().then(keys => (existingKeys = keys))
+
 /**
  * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
- * @todo app.get('/me/current') -> current entries (ref old html saves of active entries?)
  */
+
 function tabroomTokenTest(req, resApp) {
     return new Promise((resolve, reject) => {
         superagent
@@ -33,14 +48,21 @@ function tabroomTokenTest(req, resApp) {
     })
 }
 
-function generateAPIKey() {
-    var apiKey = randomBytes(36).toString('hex');
-    return { apiKey, hash(apiKey) }
-}
-
 function hash(apiKey) {
     return createHash('sha256').update(apiKey).digest('hex');
 }
+
+
+function generateAPIKey(existingKeys) {
+    var apiKey = randomBytes(36).toString('hex');
+    if (existingKeys.includes(apiKey)) {
+        generateAPIKey(existingKeys)
+    } else {
+        var hashedAPIKey = hash(apiKey)
+        return { apiKey, hashedAPIKey }
+    }
+}
+
 
 // look into cors middleware
 if (process.env.PORT == null || process.env.PORT == "") { // for dev purposes
@@ -62,11 +84,29 @@ app.get('/_ah/warmup', (req, resApp) => { // google cloud warmup request: https:
     resApp.sendStatus(200)
 })
 
-app.post('/getAPIKey', (req, resApp) => {
+app.post('/getAPIKey', async (req, resApp) => {
+    if (!req.body.circuit || !req.body.name) {
+        // status 401 and send no circuit and name error msg then return
+        resApp.status(401)
+        resApp.send(`No circuit and/or name provided.`)
+        return
+    }
+    const { apiKey, hashedAPIKey } = generateAPIKey(existingKeys)
+
+    // return apikey not the hashedApikey
+    resApp.send({ apiKey })
+
     // post user details & hash to mongo
-    // name, debate circuit
-    // write hashed to file
-    // return unhashed
+    const dbClient = await database.connect()
+    var userDetails = {
+        name: req.body.name,
+        circuit: req.body.circuit,
+    }
+    await dbClient.db('apikeys').collection('keyList').updateOne({}, { $push: { keyArray: hashedAPIKey } })
+    await dbClient.db('apikeys').collection('keyCustomers').insertOne({ [hashedAPIKey]: userDetails })
+
+    // update existingKeys
+    existingKeys = await getExistingApiKeys()
 })
 
 app.post('/login', (req, resApp) => {
@@ -76,7 +116,7 @@ app.post('/login', (req, resApp) => {
     * Note this is unsecure as it requires a user's raw credentials to be passed to a server. authentication should be done on the client side using the same method here.
     */
 
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -104,7 +144,7 @@ app.post('/login', (req, resApp) => {
 
 
 app.post('/test', (req, resApp) => {
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -115,7 +155,7 @@ app.post('/test', (req, resApp) => {
 
 // this probably needs to be split in to a seperate function 
 app.post('/me/test', async (req, resApp) => {
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -128,7 +168,7 @@ app.post('/me/test', async (req, resApp) => {
 
 app.post('/me', async function (req, resApp) {
     // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -149,7 +189,7 @@ app.post('/me/results', async function (req, resApp) { // update docs, return fo
      *  Navigation of returned Object: https://stackoverflow.com/a/42097380/9108905
      */
 
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -177,7 +217,7 @@ app.post('/me/future', (req, resApp) => { //CHANGED
      * @returns {Array} -> [...<n> future tournaments...] - Order: Most recent one first, as appears on tabroom.com
      */
 
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -244,7 +284,7 @@ app.post('/me/future', (req, resApp) => { //CHANGED
 })
 
 app.post('/me/current', function (req, resApp) { // docs - input token & api auth || **CHANGED**
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -273,7 +313,7 @@ app.post('/paradigm', (req, resApp) => {
      * @returns {Array}: ["Raw Paradigm Text", "Paradigm Text w/ HTML Markup", ...judging records...]
      */
 
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -302,7 +342,7 @@ app.post('/paradigm', (req, resApp) => {
 
 app.post('/upcoming', (req, resApp) => {
 
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -352,7 +392,7 @@ app.post('/upcoming', (req, resApp) => {
 
 
 app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -448,7 +488,7 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
 
 app.post('/getprelimrecord', (req, resApp) => {
     // input: eventLink with event id, team/oppoent code
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
@@ -493,7 +533,7 @@ app.post('/getprelimrecord', (req, resApp) => {
 
 app.post('/jitsiurl', (req, resApp) => {
     // input: jwt key, tabroomapi auth token
-    if (!apiKey.includes(req.body.apiauth)) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
         return;
