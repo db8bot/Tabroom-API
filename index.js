@@ -319,8 +319,9 @@ app.post('/me/follow', (req, resApp) => {
             if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
 
             var $ = cheerio.load(res.text)
-            var foundTeamIndex = $('span.pagehalf', '.main').children('a').toArray().findIndex(item => item.attribs.title === req.body.code)
-            var entryID = $('span.pagehalf', '.main').children('a').toArray()[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '')
+            var nativeArray = $('span.pagehalf', '.main').children('a').toArray()
+            var foundTeamIndex = nativeArray.findIndex(item => item.attribs.title === req.body.code)
+            var entryID = nativeArray[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '')
             superagent
                 .get(`https://www.tabroom.com/index/tourn/updates/entry_follow.mhtml?entry_id=${entryID}&tourn_id=${tournID}`)
                 .set('Cookie', req.body.token)
