@@ -23,7 +23,9 @@ async function getExistingApiKeys() {
     return existingKeys
 }
 
-getExistingApiKeys().then(keys => (existingKeys = keys))
+getExistingApiKeys().then(keys => (existingKeys = keys)).finally(() => {
+    app.emit('ready')
+})
 
 /**
  * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
@@ -593,6 +595,8 @@ var port = process.env.PORT
 if (port == null || port === '') {
     port = 8080
 }
-app.listen(port, () => {
-    console.log(`Listening at http://localhost:${port}`)
+app.on('ready', () => {
+    app.listen(port, () => {
+        console.log(`Listening at http://localhost:${port}`)
+    })
 })
