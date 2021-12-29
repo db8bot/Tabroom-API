@@ -6,3 +6,5 @@ test.json
 apiKeys.json
 
 .DS_Store
+
+prod.env
