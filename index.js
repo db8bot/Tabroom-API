@@ -1,10 +1,10 @@
 const express = require('express')
-const cheerio = require('cheerio');
-const superagent = require('superagent');
-// const apiKey = require('./apiKeys.json')
+const cheerio = require('cheerio')
+const superagent = require('superagent')
+var existingKeys
 const fs = require('fs')
-const { randomBytes, createHash } = require('crypto');
-var cookieParser = require('cookie-parser');
+const { randomBytes, createHash } = require('crypto')
+var cookieParser = require('cookie-parser')
 const MongoClient = require('mongodb').MongoClient
 const uri = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@apiscluster.hhd0v.mongodb.net/apikeys?retryWrites=true&w=majority`
 const database = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -18,7 +18,7 @@ async function getExistingApiKeys() {
     var existingKeys = await dbClient.db('apikeys').collection('keyList').find().toArray()
     existingKeys = existingKeys[0]
     delete existingKeys._id
-    existingKeys = existingKeys["keyArray"]
+    existingKeys = existingKeys.keyArray
     database.close()
     return existingKeys
 }
@@ -33,15 +33,18 @@ function tabroomTokenTest(req, resApp) {
     return new Promise((resolve, reject) => {
         superagent
             .get('https://www.tabroom.com/user/student/index.mhtml')
-            .set("Cookie", req.body.token)
+            .set('Cookie', req.body.token)
             .redirects(0)
             .end((err, res) => {
-                if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
-                    resApp.status(403)
-                    resApp.send(`Tabroom.com token is out of date, please run /login again to get token.`)
+                if (err && err.status !== 302) {
+                    resApp.status(500).send(`Error ${err}`)
                     resolve(false)
                 }
-                else {
+                if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
+                    resApp.status(403)
+                    resApp.send('Tabroom.com token is out of date, please run /login again to get token.')
+                    resolve(false)
+                } else {
                     resolve(true)
                 }
             })
@@ -49,12 +52,11 @@ function tabroomTokenTest(req, resApp) {
 }
 
 function hash(apiKey) {
-    return createHash('sha256').update(apiKey).digest('hex');
+    return createHash('sha256').update(apiKey).digest('hex')
 }
 
-
 function generateAPIKey(existingKeys) {
-    var apiKey = randomBytes(36).toString('hex');
+    var apiKey = randomBytes(36).toString('hex')
     if (existingKeys.includes(apiKey)) {
         generateAPIKey(existingKeys)
     } else {
@@ -63,23 +65,22 @@ function generateAPIKey(existingKeys) {
     }
 }
 
-
 // look into cors middleware
-if (process.env.PORT == null || process.env.PORT == "") { // for dev purposes
+if (process.env.PORT == null || process.env.PORT === '') { // for dev purposes
     app.use(function (req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
+        res.header('Access-Control-Allow-Origin', '*')
         // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        next();
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+        next()
     })
 }
 
 app.get('/_ah/warmup', (req, resApp) => { // google cloud warmup request: https://cloud.google.com/appengine/docs/standard/nodejs/configuring-warmup-requests
     app.use(function (req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
+        res.header('Access-Control-Allow-Origin', '*')
         // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        next();
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+        next()
     })
     resApp.sendStatus(200)
 })
@@ -88,7 +89,7 @@ app.post('/getAPIKey', async (req, resApp) => {
     if (!req.body.circuit || !req.body.name) {
         // status 401 and send no circuit and name error msg then return
         resApp.status(401)
-        resApp.send(`No circuit and/or name provided.`)
+        resApp.send('No circuit and/or name provided.')
         return
     }
     const { apiKey, hashedAPIKey } = generateAPIKey(existingKeys)
@@ -100,7 +101,7 @@ app.post('/getAPIKey', async (req, resApp) => {
     const dbClient = await database.connect()
     var userDetails = {
         name: req.body.name,
-        circuit: req.body.circuit,
+        circuit: req.body.circuit
     }
     await dbClient.db('apikeys').collection('keyList').updateOne({}, { $push: { keyArray: hashedAPIKey } })
     await dbClient.db('apikeys').collection('keyCustomers').insertOne({ [hashedAPIKey]: userDetails })
@@ -119,10 +120,10 @@ app.post('/login', (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
-    let resData = null;
+    let resData = null
     superagent
         .post('https://www.tabroom.com/user/login/login_save.mhtml')
         .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -134,36 +135,36 @@ app.post('/login', (req, resApp) => {
              * console.log(res.headers)
              * console.log(res.headers["set-cookie"][res.headers["set-cookie"].length - 1])
              */
+            if (err && err.status !== 302) {
+                resApp.status(500).send(`Error ${err}`)
+            }
             resData = {
-                "token": res.headers["set-cookie"][res.headers["set-cookie"].length - 1],
-                "expiration": res.headers["set-cookie"][res.headers["set-cookie"].length - 1].substring(res.headers["set-cookie"][res.headers["set-cookie"].length - 1].indexOf('expires=') + "expires=".length, res.headers["set-cookie"][res.headers["set-cookie"].length - 1].indexOf("; secure"))
+                token: res.headers['set-cookie'][res.headers['set-cookie'].length - 1],
+                expiration: res.headers['set-cookie'][res.headers['set-cookie'].length - 1].substring(res.headers['set-cookie'][res.headers['set-cookie'].length - 1].indexOf('expires=') + 'expires='.length, res.headers['set-cookie'][res.headers['set-cookie'].length - 1].indexOf('; secure'))
             }
             resApp.send(resData)
         })
 })
 
-
 app.post('/test', (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
     } else {
         resApp.send('Test Successful')
     }
 })
 
-// this probably needs to be split in to a seperate function 
+// this probably needs to be split in to a seperate function
 app.post('/me/test', async (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
     if (await tabroomTokenTest(req, resApp)) {
         resApp.send('Test Successful')
     }
-
 })
 
 app.post('/me', async function (req, resApp) {
@@ -171,7 +172,7 @@ app.post('/me', async function (req, resApp) {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
     const { nsda, profile } = require('./modules/me')
 
@@ -192,7 +193,7 @@ app.post('/me/results', async function (req, resApp) { // update docs, return fo
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
     if (!tabroomTokenTest(req, resApp)) return
@@ -208,9 +209,7 @@ app.post('/me/results', async function (req, resApp) { // update docs, return fo
     })
 })
 
-
-
-app.post('/me/future', (req, resApp) => { //CHANGED
+app.post('/me/future', (req, resApp) => { // CHANGED
     /**
      * @param {Object} -> Token: User's Tabroom.com token - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com Token'}
@@ -220,18 +219,19 @@ app.post('/me/future', (req, resApp) => { //CHANGED
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
     if (!tabroomTokenTest(req, resApp)) return
 
     superagent
         .get('https://www.tabroom.com/user/student/index.mhtml?default=future')
-        .set("Cookie", req.body.token)
+        .set('Cookie', req.body.token)
         .redirects(0)
         .end((err, res) => {
-            if (process.env.PORT == null || process.env.PORT == "") {
-                var $ = cheerio.load(fs.readFileSync(`./dev/Tabroom.com ASU rd5 included.html`))
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
+            if (process.env.PORT == null || process.env.PORT === '') {
+                var $ = cheerio.load(fs.readFileSync('./dev/Tabroom.com ASU rd5 included.html'))
             } else {
                 var $ = cheerio.load(res.text)
             }
@@ -239,36 +239,36 @@ app.post('/me/future', (req, resApp) => { //CHANGED
             var futureList = []
             var futureTournament = null
 
-            for (i = 0; i < $('#upcoming').children('tbody').children('tr').length; i++) {
+            for (let i = 0; i < $('#upcoming').children('tbody').children('tr').length; i++) {
                 futureTournament = {
-                    "name": '',
-                    "location": '',
-                    "date": '',
-                    "event": '',
-                    "eventLink": '',
-                    "info": '',
-                    "status": '',
-                    "prefs": '',
-                    "notes": ''
+                    name: '',
+                    location: '',
+                    date: '',
+                    event: '',
+                    eventLink: '',
+                    info: '',
+                    status: '',
+                    prefs: '',
+                    notes: ''
                 }
 
-                futureTournament.name = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[0].children.find(child => child.type == 'text').data.trim()
+                futureTournament.name = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[0].children.find(child => child.type === 'text').data.trim()
 
-                futureTournament.location = $($($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[1]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+                futureTournament.location = $($($($('#upcoming').children('tbody').children('tr')[i]).children('td')[0]).children('div')[1]).text().trim().replace(/\n/g, ' ').replace(/\t/g, '')
 
                 futureTournament.date = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[1]).text().trim()
 
                 futureTournament.event = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).text().trim()
 
-                futureTournament.eventLink = "https://www.tabroom.com" + $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href
+                futureTournament.eventLink = 'https://www.tabroom.com' + $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[2]).children('a')[0].attribs.href
 
                 futureTournament.info = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[3]).text().trim()
 
                 futureTournament.status = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
 
-                futureTournament.prefs = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[5]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+                futureTournament.prefs = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[5]).text().trim().replace(/\n/g, ' ').replace(/\t/g, '')
 
-                futureTournament.notes = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[6]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+                futureTournament.notes = $($($('#upcoming').children('tbody').children('tr')[i]).children('td')[6]).text().trim().replace(/\n/g, ' ').replace(/\t/g, '')
 
                 futureList.push(futureTournament)
             }
@@ -280,15 +280,15 @@ app.post('/me/future', (req, resApp) => { //CHANGED
                 resApp.send(futureList)
             }
         })
-
 })
 
 app.post('/me/current', function (req, resApp) { // docs - input token & api auth || **CHANGED**
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
+    if (!tabroomTokenTest(req, resApp)) return
     const { basicTournamentInfo } = require('./modules/current')
     Promise.all([basicTournamentInfo(req.body.token)]).then(val => { // could use async await here
         if (val[0] === 204) {
@@ -299,10 +299,46 @@ app.post('/me/current', function (req, resApp) { // docs - input token & api aut
     }).catch(err => {
         console.error(err)
     })
-
-
 })
 
+app.post('/me/follow', (req, resApp) => {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication provided.')
+        return
+    }
+    if (!tabroomTokenTest(req, resApp)) return
+
+    // input is the **entries** list URL
+    var eventID = req.body.entryLink.substring(req.body.entryLink.indexOf('event_id=')).replace('event_id=', '')
+    var tournID = req.body.entryLink.match(/tourn_id=(\d+)/g)[0].replace('tourn_id=', '')
+
+    superagent
+        .get(`https://www.tabroom.com/index/tourn/updates/index.mhtml?event_id=${eventID}&tourn_id=${tournID}`)
+        .end((err, res) => {
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
+
+            var $ = cheerio.load(res.text)
+            var foundTeamIndex = $('span.pagehalf', '.main').children('a').toArray().findIndex(item => item.attribs.title === req.body.code)
+            var entryID = $('span.pagehalf', '.main').children('a').toArray()[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '')
+            superagent
+                .get(`https://www.tabroom.com/index/tourn/updates/entry_follow.mhtml?entry_id=${entryID}&tourn_id=${tournID}`)
+                .set('Cookie', req.body.token)
+                .redirects(2)
+                .end((err, res) => {
+                    if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
+                    var response = {
+                        unfollowLink: `https://www.tabroom.com/index/tourn/updates/${res.text.match(/update_remove\.mhtml\?tourn_id=(\d+)&follower_id=(\d+)&.+?(category_id=)/g)[0]}`,
+                        entry_id: entryID,
+                        tourn_id: tournID,
+                        follower_id: res.text.match(/follower_id=(\d+)/g)[0].replace('follower_id=', ''),
+                        // eslint-disable-next-line no-control-regex
+                        email: res.text.match(/email=(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g)[0].replace('email=', '')
+                    }
+                    resApp.send(response)
+                })
+        })
+})
 
 app.post('/paradigm', (req, resApp) => {
     /**
@@ -316,11 +352,12 @@ app.post('/paradigm', (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
-    var requestLink = ""
+
+    var requestLink = ''
     if (req.body.type === 'name') {
-        requestLink = `https://www.tabroom.com/index/paradigm.mhtml`
+        requestLink = 'https://www.tabroom.com/index/paradigm.mhtml'
     } else if (req.body.type === 'id') {
         requestLink = `https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=${req.body.id}`
     } else if (req.body.type === 'link') {
@@ -341,46 +378,46 @@ app.post('/paradigm', (req, resApp) => {
 })
 
 app.post('/upcoming', (req, resApp) => {
-
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
     superagent
         .get('https://www.tabroom.com/index/index.mhtml')
         .end((err, res) => {
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
             var $ = cheerio.load(res.text)
 
             var upcomingTournaments = []
             var tournament = null
 
-            for (i = 0; i < $('#tournlist').children('tbody').children('tr').length; i++) {
+            for (let i = 0; i < $('#tournlist').children('tbody').children('tr').length; i++) {
                 tournament = {
-                    "date": null,
-                    "name": null,
-                    "tournamentID": null,
-                    "city": null,
-                    "stateCountry": null,
-                    "reg": null
+                    date: null,
+                    name: null,
+                    tournamentID: null,
+                    city: null,
+                    stateCountry: null,
+                    reg: null
                 }
 
-                tournament.date = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).text().trim().replace(/\t/g, "").replace(/\n/g, "").replace($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).children().text().trim(), "")
+                tournament.date = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).text().trim().replace(/\t/g, '').replace(/\n/g, '').replace($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[0]).children().text().trim(), '')
 
-                tournament.name = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1]).children('a').text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+                tournament.name = $($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1]).children('a').text().trim().replace(/\n/g, ' ').replace(/\t/g, '')
 
-                tournament.tournamentID = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'a').attribs.href.substring($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name == 'a').attribs.href.indexOf('tourn_id=') + 9)
+                tournament.tournamentID = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name === 'a').attribs.href.substring($($('#tournlist').children('tbody').children('tr')[i]).children('td')[1].children.find(child => child.name === 'a').attribs.href.indexOf('tourn_id=') + 9)
 
-                tournament.city = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type == 'text').data.trim()
+                tournament.city = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.type === 'text').data.trim()
 
                 try {
-                    tournament.stateCountry = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name == 'a').children.find(child => child.type == 'text').data.trim()
+                    tournament.stateCountry = $($('#tournlist').children('tbody').children('tr')[i]).children('td')[3].children.find(child => child.name === 'a').children.find(child => child.type === 'text').data.trim()
                 } catch (err) {
-                    tournament.stateCountry = ""
+                    tournament.stateCountry = ''
                 }
 
-                tournament.reg = $($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[4]).children('a')[0]).text().trim().replace(/\n/g, " ").replace(/\t/g, "")
+                tournament.reg = $($($($('#tournlist').children('tbody').children('tr')[i]).children('td')[4]).children('a')[0]).text().trim().replace(/\n/g, ' ').replace(/\t/g, '')
 
                 // break;
 
@@ -390,33 +427,33 @@ app.post('/upcoming', (req, resApp) => {
         })
 })
 
-
 app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
     if (!req.body.eventLink.includes('event_id')) { // link such as this: https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=20262
         superagent
-            .get(`https://www.tabroom.com/index/tourn/events.mhtml?tourn_id=${req.body.eventLink.replace('https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=', "")}`)
+            .get(`https://www.tabroom.com/index/tourn/events.mhtml?tourn_id=${req.body.eventLink.replace('https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=', '')}`)
             .redirects(0)
             .end((err, res) => {
+                if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
                 var $ = cheerio.load(res.text)
                 var eventLinks = []
                 eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="dkblue half nowrap marvertno"]')[0]).attr('href')}`).replace('events', 'fields'))
-                for (i = 0; i < $('[class="blue half nowrap marvertno"]').length; i++) {
+                for (let i = 0; i < $('[class="blue half nowrap marvertno"]').length; i++) {
                     eventLinks.push((`https://www.tabroom.com/index/tourn/${$($('[class="blue half nowrap marvertno"]')[i]).attr('href')}`).replace('events', 'fields'))
                 }
 
                 // eventSearchDeliver(req, eventLinks, resApp)
                 var searchResults = []
-                for (i = 0; i < eventLinks.length; i++) {
+                for (let i = 0; i < eventLinks.length; i++) {
                     searchResults.push(eventSearch(req, eventLinks[i]))
                 }
                 // https://medium.com/@chrisjr06/why-and-how-to-avoid-await-in-a-for-loop-32b86722171
                 Promise.all(searchResults).then(val => {
-                    resApp.send(val.filter(x => x != undefined))
+                    resApp.send(val.filter(x => x !== undefined))
                 })
             })
 
@@ -426,33 +463,33 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
                     .get(link)
                     .redirects(0)
                     .end((err, res) => {
+                        if (err) reject(err)
                         var $ = cheerio.load(res.text)
-                        for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
+                        for (let i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
                             if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
                                 resolve({
-                                    "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
-                                    "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
-                                    "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
-                                    "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
-                                    "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+                                    school: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                    locale: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
+                                    entry: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
+                                    code: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
+                                    status: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
                                 })
-                                return;
+                                return
                             }
                         }
                         resolve()
                     })
             })
         }
-    } else {  // if this is an event link
-
+    } else { // if this is an event link
         superagent
             .get(req.body.eventLink)
             .redirects(0)
             .end((err, res) => {
+                if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
                 var $ = cheerio.load(res.text)
 
-
-                var entryRequestLink = "https://www.tabroom.com" + $('#tabnav > li:nth-child(2) > a')[0].attribs.href + "&event_id=" + req.body.eventLink.substring(req.body.eventLink.indexOf('event_id=') + 9)
+                var entryRequestLink = 'https://www.tabroom.com' + $('#tabnav > li:nth-child(2) > a')[0].attribs.href + '&event_id=' + req.body.eventLink.substring(req.body.eventLink.indexOf('event_id=') + 9)
 
                 console.log(entryRequestLink)
 
@@ -460,30 +497,27 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
                     .get(entryRequestLink)
                     .redirects(0)
                     .end((err, resSecond) => {
+                        if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
                         var $ = cheerio.load(resSecond.text)
 
-                        for (i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
-
+                        for (let i = 0; i < $('.main').children('table').children('tbody').children().length; i++) {
                             if (req.body.code === $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim()) {
                                 resApp.send({
-                                    "school": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
-                                    "locale": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
-                                    "entry": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
-                                    "code": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
-                                    "status": $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
+                                    school: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                    locale: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[1]).text().trim(),
+                                    entry: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[2]).text().trim(),
+                                    code: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[3]).text().trim(),
+                                    status: $($($('.main').children('table').children('tbody').children('tr')[i]).children('td')[4]).text().trim()
                                 })
-                                return;
+                                return
                             }
-
                         }
                         resApp.status(404)
-                        resApp.send(`Entry not found.`)
+                        resApp.send('Entry not found.')
                     })
-
             })
     }
     // add functionality to get entries from links like: https://www.tabroom.com/index/tourn/fields.mhtml?tourn_id=20262&event_id=175214
-
 })
 
 app.post('/getprelimrecord', (req, resApp) => {
@@ -491,20 +525,21 @@ app.post('/getprelimrecord', (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
     superagent
         .get(req.body.eventLink)
         .redirects(0)
         .end((err, res) => {
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
             var $ = cheerio.load(res.text)
             var link = null
 
-            for (i = 0; i < $('.sidenote').children('a').length; i++) {
+            for (let i = 0; i < $('.sidenote').children('a').length; i++) {
                 if ($('.sidenote').children('a')[i].attribs.class.includes('dkblue')) {
-                    link = "https://www.tabroom.com/index/tourn/" + $('.sidenote').children('a')[i].attribs.href.replace('events.mhtml?', 'results/ranked_list.mhtml?')
-                    break;
+                    link = 'https://www.tabroom.com/index/tourn/' + $('.sidenote').children('a')[i].attribs.href.replace('events.mhtml?', 'results/ranked_list.mhtml?')
+                    break
                 }
             }
 
@@ -512,21 +547,20 @@ app.post('/getprelimrecord', (req, resApp) => {
                 .get(link)
                 .redirects(10)
                 .end((err, res) => {
-
+                    if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
                     var $ = cheerio.load(res.text)
-                    for (i = 0; i < $('#ranked_list').children('tbody').children('tr').length; i++) {
+                    for (let i = 0; i < $('#ranked_list').children('tbody').children('tr').length; i++) {
                         if ($($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2]).text().trim() === req.body.code) {
                             resApp.send({
-                                "recordW": $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
-                                "recordL": "" + ($("#ranked_list_buttonarea").text().trim() - $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim()),
-                                "recordLink": "https://www.tabroom.com" + ($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name === 'a').attribs.href)
+                                recordW: $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim(),
+                                recordL: '' + ($('#ranked_list_buttonarea').text().trim() - $($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[0]).text().trim()),
+                                recordLink: 'https://www.tabroom.com' + ($($('#ranked_list').children('tbody').children('tr')[i]).children('td')[2].children.find(child => child.name === 'a').attribs.href)
                             })
-                            return;
+                            return
                         }
                     }
                     resApp.status(404)
                     resApp.send('Not Found')
-
                 })
         })
 })
@@ -536,7 +570,7 @@ app.post('/jitsiurl', (req, resApp) => {
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
-        return;
+        return
     }
 
     superagent
@@ -545,19 +579,18 @@ app.post('/jitsiurl', (req, resApp) => {
         .send(JSON.parse(`{"json":"${req.body.jwt}"}`))
         .redirects(10)
         .end((err, res) => {
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
             var $ = cheerio.load(res.text)
-            var scriptStr = $("script:nth-child(5)", "body").html()
-            var uuid = scriptStr.match(/(uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*")|(uuid:"[a-zA-Z0-9_.-]+")/g)[0].replace('uuid:"', "").replace('"', "")
-            var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', "").replace('"', "")
+            var scriptStr = $('script:nth-child(5)', 'body').html()
+            var uuid = scriptStr.match(/(uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*")|(uuid:"[a-zA-Z0-9_.-]+")/g)[0].replace('uuid:"', '').replace('"', '')
+            var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', '').replace('"', '')
             resApp.send(`https://meet-west.speechanddebate.org/${uuid}?jwt=${jwt}`)
         })
-
 })
 
-
-port = process.env.PORT;
-if (port == null || port == "") {
-    port = 8080;
+var port = process.env.PORT
+if (port == null || port === '') {
+    port = 8080
 }
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`)
