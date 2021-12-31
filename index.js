@@ -305,6 +305,10 @@ app.post('/me/current', function (req, resApp) { // docs - input token & api aut
 })
 
 app.post('/me/follow', (req, resApp) => {
+    /**
+     * accepts: apiauth, entrylist link, follow team code
+     * returns: unfollow link, entry id, tourn id, follower id, followed email
+    */
     if (!existingKeys.includes(hash(req.body.apiauth))) {
         resApp.status(401)
         resApp.send('Invalid API Key or no authentication provided.')
@@ -589,6 +593,37 @@ app.post('/jitsiurl', (req, resApp) => {
             var uuid = scriptStr.match(/(uuid:"(?:\d+[a-z]|[a-z]+\d)[a-z\d]*")|(uuid:"[a-zA-Z0-9_.-]+")/g)[0].replace('uuid:"', '').replace('"', '')
             var jwt = scriptStr.match(/jwt:"([a-zA-Z0-9._-])*"/gm)[0].replace('jwt:"', '').replace('"', '')
             resApp.send(`https://meet-west.speechanddebate.org/${uuid}?jwt=${jwt}`)
+        })
+})
+
+app.post('/tournamentinfo', (req, resApp) => {
+    // input: api auth, any link with tournament id
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
+        resApp.status(401)
+        resApp.send('Invalid API Key or no authentication')
+    }
+    var tournamentID = req.body.link.match(/tourn_id=(\d+)/g)[0].replace('tourn_id=', '')
+    superagent
+        .get(`https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=${tournamentID}`)
+        .end((err, res) => {
+            if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
+            var $ = cheerio.load(res.text)
+            var returnPayload = {
+                tournName: $('div.main').children('h2').text().trim(),
+                startDateUnix: null,
+                endDateUnix: null
+            }
+            var tournYear = $('div.main').children('h5').text().trim().substring(0, 4)
+            var timeZone = $($('div.menu').children('div.sidenote')[1]).children('span.third.explain').text().trim().replace('Times in ', '')
+            var rawTime = $($($('div.menu').children('div.sidenote')[1]).children('div.row').children('span.smaller')[1]).text().trim().replace(/\n/g, '').replace(/\t/g, '').replace(/ /g, '').split('to')
+            if (rawTime.length === 2) { // start end on different days, there used to be a "to" seperator
+                returnPayload.startDateUnix = new Date(`${rawTime[0]}/${tournYear} 00:00 ${timeZone}`).getTime()
+                returnPayload.endDateUnix = new Date(`${rawTime[1]}/${tournYear} 23:59 ${timeZone}`).getTime()
+            } else if (rawTime.length === 1) {
+                returnPayload.startDateUnix = new Date(`${rawTime[0]}/${tournYear} 00:00 ${timeZone}`).getTime()
+                returnPayload.endDateUnix = new Date(`${rawTime[0]}/${tournYear} 23:59 ${timeZone}`).getTime()
+            }
+            resApp.send(returnPayload)
         })
 })
 
