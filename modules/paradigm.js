@@ -11,8 +11,8 @@ function paradigmWorkWithRequest(req, judgeLink) {
 
                 var roundJudgedInfo = null
                 var judgeRecord = []
-                judgeRecord.push($('.paradigm').text())
-                judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
+                judgeRecord.push($('.paradigm.ltborderbottom').text())
+                judgeRecord.push($('.paradigm.ltborderbottom').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
                 if (judgeLink) judgeRecord.push(judgeLink)
                 if (req.body.short == 'true') {
                     // resApp.send(judgeRecord)
@@ -86,8 +86,8 @@ function paradigmWorkWithRequest(req, judgeLink) {
 function paradigmWork(req, $, judgeLink) {
     var roundJudgedInfo = null
     var judgeRecord = []
-    judgeRecord.push($('.paradigm').text())
-    judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
+    judgeRecord.push($('.paradigm.ltborderbottom').text())
+    judgeRecord.push($('.paradigm.ltborderbottom').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
     if (judgeLink) judgeRecord.push(judgeLink)
     if (req.body.short == 'true') {
         return (judgeRecord)
@@ -172,7 +172,7 @@ function start(req, requestLink, cb) {
                 /**
                  * loop: i->table len. Count votes while stuffing tournament info in json objs stuffed in an array
                  */
-                if (res.text.includes(`returned no judges with paradigms.`)) {
+                if (res.text.includes(`returned no judges.`)) {
                     cb(null, 204)
                     return;
                 }
@@ -211,8 +211,8 @@ function start(req, requestLink, cb) {
                 }
                 var roundJudgedInfo = null
                 var judgeRecord = []
-                judgeRecord.push($('.paradigm').text())
-                judgeRecord.push($('.paradigm').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
+                judgeRecord.push($('.paradigm.ltborderbottom').text())
+                judgeRecord.push($('.paradigm.ltborderbottom').html().replace(/<p>/gmi, "").replace(/<\/p>/gmi, ""))
 
                 if (req.body.short == 'true') {
                     cb(null, judgeRecord)
