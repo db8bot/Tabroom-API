@@ -28,6 +28,13 @@ getExistingApiKeys().then(keys => (existingKeys = keys)).finally(() => {
     app.emit('ready')
 })
 
+function auth(req, resApp, next) {
+    if (!existingKeys.includes(hash(req.body.apiauth))) {
+        return resApp.status(401).send('Invalid API Key or no authentication provided.')
+    }
+    next()
+}
+
 /**
  * @todo app.get('/tournamentInfo) -> entries, judges.. pairings? results? encourages mass requests?
  */
@@ -113,18 +120,12 @@ app.post('/getAPIKey', async (req, resApp) => {
     existingKeys = await getExistingApiKeys()
 })
 
-app.post('/login', (req, resApp) => {
+app.post('/login', auth, (req, resApp) => {
     /**
     * @param {Object} -> Username: Tabroom email & Password: Tabroom password EX: { username: 'yfang@ex.org', password: 'password' } - Encode: X-WWW-FORM-URLENCODED
     * @returns {Object} -> Token: Tabroom Token (Format: Cookie) & Expiration: Tabroom Token Expiration Date (GMT)
     * Note this is unsecure as it requires a user's raw credentials to be passed to a server. authentication should be done on the client side using the same method here.
     */
-
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
 
     let resData = null
     superagent
@@ -149,34 +150,19 @@ app.post('/login', (req, resApp) => {
         })
 })
 
-app.post('/test', (req, resApp) => {
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-    } else {
-        resApp.send('Test Successful')
-    }
+app.post('/test', auth, (req, resApp) => {
+    resApp.send('Test Successful')
 })
 
 // this probably needs to be split in to a seperate function
-app.post('/me/test', async (req, resApp) => {
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
+app.post('/me/test', auth, async (req, resApp) => {
     if (await tabroomTokenTest(req, resApp)) {
         resApp.send('Test Successful')
     }
 })
 
-app.post('/me', async function (req, resApp) {
+app.post('/me', auth, async function (req, resApp) {
     // @todo app.get('/me') -> NSDA pts, district tournaments? membership #, membership # affiliation school, name, email, timezone, pronouns
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
     const { nsda, profile } = require('./modules/me')
 
     Promise.all([nsda(req), profile(req)]).then((val) => {
@@ -184,7 +170,7 @@ app.post('/me', async function (req, resApp) {
     })
 })
 
-app.post('/me/results', async function (req, resApp) { // update docs, return format changed.
+app.post('/me/results', auth, async function (req, resApp) { // update docs, return format changed.
     /**
      * @param {Object} -> Token: Tabroom Token as returned by the /login endpoint - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY & Short: a integer representing the number of months to go back when collecting records. Ex: short = 2 will only collect records from tournnaments that were held 2 months ago from today. Encode: X-WWW-FORM-URLENCODED - USE "short" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com token', 'short': '2'}
@@ -192,13 +178,6 @@ app.post('/me/results', async function (req, resApp) { // update docs, return fo
      * @description Might be for policy tab accounts only - non policy accounts may have different formatting in the results page (especially speech)
      *  Navigation of returned Object: https://stackoverflow.com/a/42097380/9108905
      */
-
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
-
     if (!tabroomTokenTest(req, resApp)) return
 
     const { basicInfo } = require('./modules/results')
@@ -212,18 +191,12 @@ app.post('/me/results', async function (req, resApp) { // update docs, return fo
     })
 })
 
-app.post('/me/future', (req, resApp) => { // CHANGED
+app.post('/me/future', auth, (req, resApp) => { // CHANGED
     /**
      * @param {Object} -> Token: User's Tabroom.com token - Encode: X-WWW-FORM-URLENCODED - USE "token" FOR X-WWW-FORM-URLENCODED KEY
      *  {'token': 'Tabroom.com Token'}
      * @returns {Array} -> [...<n> future tournaments...] - Order: Most recent one first, as appears on tabroom.com
      */
-
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
 
     if (!tabroomTokenTest(req, resApp)) return
 
@@ -285,12 +258,7 @@ app.post('/me/future', (req, resApp) => { // CHANGED
         })
 })
 
-app.post('/me/current', function (req, resApp) { // docs - input token & api auth || **CHANGED**
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
+app.post('/me/current', auth, function (req, resApp) { // docs - input token & api auth || **CHANGED**
     if (!tabroomTokenTest(req, resApp)) return
     const { basicTournamentInfo } = require('./modules/current')
     Promise.all([basicTournamentInfo(req.body.token)]).then(val => { // could use async await here
@@ -304,16 +272,11 @@ app.post('/me/current', function (req, resApp) { // docs - input token & api aut
     })
 })
 
-app.post('/me/follow', (req, resApp) => {
+app.post('/me/follow', auth, (req, resApp) => {
     /**
      * accepts: apiauth, entrylist link, follow team code
      * returns: unfollow link, entry id, tourn id, follower id, followed email
     */
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
     if (!tabroomTokenTest(req, resApp)) return
 
     // input is the **entries** list URL
@@ -348,7 +311,7 @@ app.post('/me/follow', (req, resApp) => {
         })
 })
 
-app.post('/paradigm', (req, resApp) => {
+app.post('/paradigm', auth, (req, resApp) => {
     /**
      * @param {object} -> EITHER:
      *  {type: "name", first: "john", last: "appleseed"}
@@ -356,12 +319,6 @@ app.post('/paradigm', (req, resApp) => {
      *  {type: "link", link: "https://www.tabroom.com/index/paradigm.mhtml?judge_person_id=6606"}
      * @returns {Array}: ["Raw Paradigm Text", "Paradigm Text w/ HTML Markup", ...judging records...]
      */
-
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
 
     var requestLink = ''
     if (req.body.type === 'name') {
@@ -385,13 +342,7 @@ app.post('/paradigm', (req, resApp) => {
     })
 })
 
-app.post('/upcoming', (req, resApp) => {
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
-
+app.post('/upcoming', auth, (req, resApp) => {
     superagent
         .get('https://www.tabroom.com/index/index.mhtml')
         .end((err, res) => {
@@ -435,12 +386,7 @@ app.post('/upcoming', (req, resApp) => {
         })
 })
 
-app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
+app.post('/codeExtract', auth, (req, resApp) => { // req: apiauth, tournament link, code, find the entries link, and then add the event id on there :facepalm:
     if (!req.body.eventLink.includes('event_id')) { // link such as this: https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=20262
         superagent
             .get(`https://www.tabroom.com/index/tourn/events.mhtml?tourn_id=${req.body.eventLink.replace('https://www.tabroom.com/index/tourn/index.mhtml?tourn_id=', '')}`)
@@ -528,14 +474,8 @@ app.post('/codeExtract', (req, resApp) => { // req: apiauth, tournament link, co
     // add functionality to get entries from links like: https://www.tabroom.com/index/tourn/fields.mhtml?tourn_id=20262&event_id=175214
 })
 
-app.post('/getprelimrecord', (req, resApp) => {
+app.post('/getprelimrecord', auth, (req, resApp) => {
     // input: eventLink with event id, team/oppoent code
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
-
     superagent
         .get(req.body.eventLink)
         .redirects(0)
@@ -573,14 +513,8 @@ app.post('/getprelimrecord', (req, resApp) => {
         })
 })
 
-app.post('/jitsiurl', (req, resApp) => {
+app.post('/jitsiurl', auth, (req, resApp) => {
     // input: jwt key, tabroomapi auth token
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication provided.')
-        return
-    }
-
     superagent
         .post('https://campus.speechanddebate.org/')
         .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -596,12 +530,8 @@ app.post('/jitsiurl', (req, resApp) => {
         })
 })
 
-app.post('/tournamentinfo', (req, resApp) => {
+app.post('/tournamentinfo', auth, (req, resApp) => {
     // input: api auth, any link with tournament id
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        resApp.status(401)
-        resApp.send('Invalid API Key or no authentication')
-    }
     var tournamentID = req.body.link.match(/tourn_id=(\d+)/g)[0].replace('tourn_id=', '')
 
     function tournInfoGetEvent() {
