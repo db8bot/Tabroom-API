@@ -1,7 +1,7 @@
-const axios = require('axios').default
 const cheerio = require('cheerio')
 const express = require('express')
 const router = express.Router()
+const superagent = require('superagent')
 
 const MongoClient = require('mongodb').MongoClient
 const uri = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@db8botcluster.q3bif.mongodb.net/23bot?retryWrites=true&w=majority`
@@ -10,6 +10,7 @@ const database = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopolog
 router.post('/', async (req, resApp) => {
 
     let requestLink = ''
+    var useragent = req.app.get('useragent')
 
     if (req.body.type === 'name') {
         requestLink = 'https://www.tabroom.com/index/paradigm.mhtml'
@@ -19,20 +20,20 @@ router.post('/', async (req, resApp) => {
         requestLink = req.body.link
     }
 
-    if (req.body.link) {
-        axios({
-            method: 'get',
-            url: requestLink
-        }).then(async res => {
-            const $ = cheerio.load(res.data)
-            if (res.data.toLowerCase().includes('Paradigm search results')) { // multiple people exist with this name
-                for (i = 0; i < Math.max(3, $('#paradigm_search').children('tbody').children('tr').length); i++) { // scrape all possible or only the top 3
+    if (requestLink) {
+        superagent
+            .get(requestLink)
+            .set('User-Agent', useragent) // if by name, send post ruqest- need a nother header and condintoality
+            .end((err, res) => {
+                if (err) return resApp.status(500).send(err)
+                const $ = cheerio.load(res.text)
 
-                }
-            } else {
+                let paradigmText = $('.paradigm.ltborderbottom').text().trim()
 
-            }
-        })
+                console.log(paradigmText)
+            })
     }
 
 })
+
+module.exports = router

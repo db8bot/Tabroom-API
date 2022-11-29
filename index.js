@@ -1,5 +1,5 @@
 const express = require('express')
-const cheerio = require('cheerio')
+const superagent = require('superagent')
 const qs = require('qs')
 const cookieParser = require('cookie-parser')
 const router = express.Router()
@@ -108,5 +108,24 @@ app.post('/getAPIKey', async (req, resApp) => {
     existingKeys = await getExistingApiKeys()
 })
 
+// setup universal useragent
+
+superagent
+    .get('https://omahaproxy.appspot.com/win')
+    .end((err, res) => {
+        if (err) console.error(err)
+        app.set('useragent', `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${res.text.substring(0, res.text.indexOf('.'))}.0.0.0 Safari/537.36`)
+    })
+
+
 // routes
-app.use('/paradigm', require('routes/paradigm'))
+app.use('/paradigm', require('./routes/paradigm'))
+
+
+var port = process.env.PORT
+if (port == null || port === '') {
+    port = 8081
+}
+app.listen(port, () => {
+    console.log(`Listening at http://localhost:${port}`)
+})
