@@ -3,12 +3,31 @@ const express = require('express')
 const router = express.Router()
 const superagent = require('superagent')
 const { Tabletojson: tabletojson } = require('tabletojson')
+const crypto = require('crypto')
 
-const MongoClient = require('mongodb').MongoClient
-const uri = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@db8botcluster.q3bif.mongodb.net/23bot?retryWrites=true&w=majority`
-const database = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 
 router.post('/', async (req, resApp) => {
+
+    /* Input schema
+    type: string,
+    id: string,, optional
+    link: string, optional
+    first: string, optional
+    last: string, optional
+    all: true/false, optional
+    paradigmOnly: true/false, optional
+
+    */
+
+    // check auth
+    var authKeys = req.app.get('authKeys')
+    function hash(apiKey) {
+        return crypto.createHash('sha256').update(apiKey).digest('hex')
+    }
+    if (!req.body.auth) return resApp.status(401).send('Invalid API Key or no authentication provided.')
+    if (!authKeys.includes(hash(req.body.auth))) {
+        return resApp.status(401).send('Invalid API Key or no authentication provided.')
+    }
 
     let requestLink = ''
     var useragent = req.app.get('useragent')
@@ -20,15 +39,50 @@ router.post('/', async (req, resApp) => {
     } else if (req.body.type === 'link') {
         requestLink = req.body.link
     }
-
+    var paradigm = []
     if (req.body.type === 'name') {
         superagent
             .post(requestLink)
             .set('User-Agent', useragent)
+            .set('Content-Type', 'application/x-www-form-urlencoded')
             .send({ search_first: req.body.first, search_last: req.body.last })
             .end(async (err, res) => {
                 if (err) return resApp.status(500).send(err)
-                await paradigmProcessing(res.text)
+                if (res.text.includes('returned no judges. Please try again.')) { // no paradigms
+                    console.log('no paradigms found')
+                    resApp.status(404).send('no paradigms found')
+                } else if (res.text.includes('Paradigm search results')) { // multiple paradigms
+                    console.log('multiple people')
+                    let promiseRequestArr = []
+                    const $ = cheerio.load(res.text)
+                    if (req.body.all === 'false') {
+                        superagent
+                            .get(`https://www.tabroom.com/index/${$($($('#paradigm_search').children('tbody').children('tr')[0]).children('td')[3]).children('a').attr('href')}`)
+                            .set('User-Agent', useragent)
+                            .end(async (err, res) => {
+                                if (err) return resApp.status(500).send(err)
+                                paradigm.push(await paradigmProcessing(res.text, req.body.paradigmOnly))
+                                if (paradigm[0].paradigm === "") {
+                                    resApp.status(404).send('no paradigms found')
+                                } else {
+                                    resApp.send(paradigm)
+                                }
+                            })
+
+                    } else {
+                        for (i = 0; i < $('#paradigm_search').children('tbody').children('tr').length; i++) {
+                            promiseRequestArr.push(multiRequest(`https://www.tabroom.com/index/${$($($('#paradigm_search').children('tbody').children('tr')[i]).children('td')[3]).children('a').attr('href')}`, req, useragent))
+                        }
+                        Promise.all(promiseRequestArr).then((values) => {
+                            resApp.send(values)
+                        })
+                    }
+                } else { // single paradigm page
+                    console.log('single paradigm')
+                    paradigm.push(await paradigmProcessing(res.text, req.body.paradigmOnly))
+                    resApp.send(paradigm)
+                }
+
             })
     } else if (requestLink) {
         superagent
@@ -37,20 +91,35 @@ router.post('/', async (req, resApp) => {
             .end(async (err, res) => {
                 if (err) return resApp.status(500).send(err)
                 // check if there are multiple people or no paradigms
-                if (res.text.includes('returned no judges. Please try again.')) {
+                if (res.text.includes('returned no judges. Please try again.')) { // no paradigms
                     console.log('no paradigms found')
                     resApp.status(404).send('no paradigms found')
-                } else if (res.text.includes('Paradigm search results')) {
+                } else if (res.text.includes('Paradigm search results')) { // multiple paradigms - prob wont be used but just in case someone submits a link with first & last name
                     console.log('multiple people')
+                    let promiseRequestArr = []
                     const $ = cheerio.load(res.text)
-
-                    for (i = 0; i < $($($('#paradigm_search')[0]).children('tbody')[0]).children('tr').length; i++) {
+                    if (req.body.all === 'false') {
                         superagent
-                        .get(`https://www.tabroom.com${}`)
-                        await paradigmProcessing(res.text)
-                    }
-                } else {
+                            .get(`https://www.tabroom.com/index/${$($($('#paradigm_search').children('tbody').children('tr')[0]).children('td')[3]).children('a').attr('href')}`)
+                            .set('User-Agent', useragent)
+                            .end(async (err, res) => {
+                                if (err) return resApp.status(500).send(err)
+                                paradigm.push(await paradigmProcessing(res.text, req.body.paradigmOnly))
+                                resApp.send(paradigm)
+                            })
 
+                    } else {
+                        for (i = 0; i < $('#paradigm_search').children('tbody').children('tr').length; i++) {
+                            promiseRequestArr.push(multiRequest(`https://www.tabroom.com/index/${$($($('#paradigm_search').children('tbody').children('tr')[i]).children('td')[3]).children('a').attr('href')}`, req, useragent))
+                        }
+                        Promise.all(promiseRequestArr).then((values) => {
+                            resApp.send(values)
+                        })
+                    }
+                } else { // single paradigm page
+                    console.log('single paradigm')
+                    paradigm.push(await paradigmProcessing(res.text, req.body.paradigmOnly))
+                    resApp.send(paradigm)
                 }
 
             })
@@ -58,13 +127,42 @@ router.post('/', async (req, resApp) => {
 
 })
 
-async function paradigmProcessing(html) {
-    const $ = cheerio.load(html)
-    let paradigmText = $('.paradigm.ltborderbottom').text().trim()
+async function multiRequest(link, req, useragent) {
+    return new Promise((resolve, reject) => {
+        superagent
+            .get(link)
+            .set('User-Agent', useragent)
+            .end(async (err, res) => {
+                if (err) reject(err)
+                resolve(await paradigmProcessing(res.text, req.body.paradigmOnly))
+            })
+    })
+}
 
-    const converted = tabletojson.convert(paradigmText)
-    // console.log(paradigmText)
-    console.log(converted)
+async function paradigmProcessing(html, paradigmOnly) {
+
+    /*
+    return schema:
+    {
+        paradigm: string,
+        judgeRecords: []
+    }
+    */
+
+    const $ = cheerio.load(html)
+    let paradigmText = $('.paradigm .ltborderbottom').text().trim()
+
+    if (paradigmOnly === 'true') {
+        return ({
+            paradigm: paradigmText
+        })
+    } else {
+        const converted = tabletojson.convert(html)
+        return ({
+            paradigm: paradigmText,
+            judgeRecords: converted
+        })
+    }
 }
 
 module.exports = router

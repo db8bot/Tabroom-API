@@ -12,12 +12,11 @@ superagent
     .end((err, res) => {
         if (err) return resApp.status(500).send(err)
 
-        
-    })
-        // const $ = cheerio.load(res.text)
+        const $ = cheerio.load(res.text)
 
-        // let paradigmText = $('.paradigm.ltborderbottom').text().trim()
-        // const converted = tabletojson.convert(res.text)
+        let paradigmText = $('.paradigm.ltborderbottom').text().trim()
+        const converted = tabletojson.convert(res.text)
 
         // console.log(paradigmText)
-        // console.log(converted)
+        console.log(converted)
+    })

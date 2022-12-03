@@ -1,12 +1,11 @@
 const express = require('express')
 const superagent = require('superagent')
-const qs = require('qs')
 const cookieParser = require('cookie-parser')
-const router = express.Router()
 const MongoClient = require('mongodb').MongoClient
 const uri = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@apiscluster.hhd0v.mongodb.net/apikeys?retryWrites=true&w=majority`
 const database = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-
+const { randomBytes, createHash } = require('crypto')
+var existingKeys
 
 var app = express()
 app.use(express.json())
@@ -16,7 +15,6 @@ app.use(cookieParser())
 if (process.env.PORT == null || process.env.PORT === '') { // for dev purposes
     app.use(function (req, res, next) {
         res.header('Access-Control-Allow-Origin', '*')
-        // res.header("Access-Control-Allow-Origin", "file:///Users/jim/Documents/NSDA-to-Jitsi-Desktop/index.html");
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
         next()
     })
@@ -26,11 +24,12 @@ if (process.env.PORT == null || process.env.PORT === '') { // for dev purposes
 // auth
 async function getExistingApiKeys() {
     const dbClient = await database.connect()
-    var existingKeys = await dbClient.db('apikeys').collection('keyList').find().toArray()
-    existingKeys = existingKeys[0]
+    let keys = await dbClient.db('apikeys').collection('hashedKeys').find().toArray()
+    existingKeys = keys[0]
     delete existingKeys._id
-    existingKeys = existingKeys.keyArray
+    existingKeys = existingKeys.keyList
     database.close()
+    app.set('authKeys', existingKeys)
     return existingKeys
 }
 
@@ -38,25 +37,16 @@ getExistingApiKeys().then(keys => (existingKeys = keys)).finally(() => {
     app.emit('ready')
 })
 
-router.use((req, resApp, next) => {
-    if (!existingKeys.includes(hash(req.body.apiauth))) {
-        return resApp.status(401).send('Invalid API Key or no authentication provided.')
-    }
-    next()
-})
 
 function hash(apiKey) {
     return createHash('sha256').update(apiKey).digest('hex')
 }
 
-function generateAPIKey(existingKeys) {
+function generateAPIKey() {
     var apiKey = randomBytes(36).toString('hex')
-    if (existingKeys.includes(apiKey)) {
-        generateAPIKey(existingKeys)
-    } else {
-        var hashedAPIKey = hash(apiKey)
-        return { apiKey, hashedAPIKey }
-    }
+    var hashedAPIKey = hash(apiKey)
+    return { apiKey, hashedAPIKey }
+
 }
 
 // token exp test
@@ -84,12 +74,6 @@ function tabroomTokenTest(req, resApp) {
 
 // meta functions
 app.post('/getAPIKey', async (req, resApp) => {
-    if (!req.body.circuit || !req.body.name) {
-        // status 401 and send no circuit and name error msg then return
-        resApp.status(401)
-        resApp.send('No circuit and/or name provided.')
-        return
-    }
     const { apiKey, hashedAPIKey } = generateAPIKey(existingKeys)
 
     // return apikey not the hashedApikey
@@ -97,15 +81,11 @@ app.post('/getAPIKey', async (req, resApp) => {
 
     // post user details & hash to mongo
     const dbClient = await database.connect()
-    var userDetails = {
-        name: req.body.name,
-        circuit: req.body.circuit
-    }
-    await dbClient.db('apikeys').collection('keyList').updateOne({}, { $push: { keyArray: hashedAPIKey } })
-    await dbClient.db('apikeys').collection('keyCustomers').insertOne({ [hashedAPIKey]: userDetails })
+    await dbClient.db('apikeys').collection('hashedKeys').updateOne({}, { $push: { keyList: hashedAPIKey } })
 
     // update existingKeys
     existingKeys = await getExistingApiKeys()
+    database.close()
 })
 
 // setup universal useragent
@@ -126,6 +106,8 @@ var port = process.env.PORT
 if (port == null || port === '') {
     port = 8081
 }
-app.listen(port, () => {
-    console.log(`Listening at http://localhost:${port}`)
+app.on('ready', () => {
+    app.listen(port, () => {
+        console.log(`Listening at http://localhost:${port}`)
+    })
 })
