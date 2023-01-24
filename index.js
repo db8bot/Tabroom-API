@@ -104,7 +104,7 @@ app.use('/paradigm', require('./routes/paradigm'))
 
 var port = process.env.PORT
 if (port == null || port === '') {
-    port = 8081
+    port = 8082
 }
 app.on('ready', () => {
     app.listen(port, () => {

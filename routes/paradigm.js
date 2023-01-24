@@ -151,15 +151,18 @@ async function paradigmProcessing(html, paradigmOnly) {
 
     const $ = cheerio.load(html)
     let paradigmText = $('.paradigm .ltborderbottom').text().trim()
+    let judgeName = $('#content div.main h3').text()
 
     if (paradigmOnly === 'true') {
         return ({
-            paradigm: paradigmText
+            paradigm: paradigmText,
+            name: judgeName
         })
     } else {
         const converted = tabletojson.convert(html)
         return ({
             paradigm: paradigmText,
+            name: judgeName,
             judgeRecords: converted
         })
     }
