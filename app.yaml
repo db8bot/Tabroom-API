@@ -3,6 +3,6 @@ instance_class: F1
 env: standard
 automatic_scaling:
   max_instances: 10
-  target_cpu_utilization: 0.65
-  max_concurrent_requests: 3
-  max_pending_latency: 100ms
+  target_cpu_utilization: 0.50
+  max_concurrent_requests: 2
+  max_pending_latency: 10ms
