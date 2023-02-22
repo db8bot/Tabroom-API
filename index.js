@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './prd.env' })
+// require('dotenv').config({ path: './prd.env' })
 const express = require('express')
 const superagent = require('superagent')
 const cookieParser = require('cookie-parser')
