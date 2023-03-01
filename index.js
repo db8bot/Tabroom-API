@@ -23,15 +23,19 @@ if (process.env.PORT == null || process.env.PORT === '') { // for dev purposes
 
 
 // auth
+// async function getExistingApiKeys() {
+//     const dbClient = await database.connect()
+//     let keys = await dbClient.db('apikeys').collection('hashedKeys').find().toArray()
+//     existingKeys = keys[0]
+//     delete existingKeys._id
+//     existingKeys = existingKeys.keyList
+//     database.close()
+//     app.set('authKeys', existingKeys)
+//     return existingKeys
+// }
+
 async function getExistingApiKeys() {
-    const dbClient = await database.connect()
-    let keys = await dbClient.db('apikeys').collection('hashedKeys').find().toArray()
-    existingKeys = keys[0]
-    delete existingKeys._id
-    existingKeys = existingKeys.keyList
-    database.close()
-    app.set('authKeys', existingKeys)
-    return existingKeys
+    return true
 }
 
 getExistingApiKeys().then(keys => (existingKeys = keys)).finally(() => {
@@ -50,28 +54,6 @@ function generateAPIKey() {
 
 }
 
-// token exp test
-function tabroomTokenTest(req, resApp) {
-    return new Promise((resolve, reject) => {
-        superagent
-            .get('https://www.tabroom.com/user/student/index.mhtml')
-            .set('Cookie', req.body.token)
-            .redirects(0)
-            .end((err, res) => {
-                if (err && err.status !== 302) {
-                    resApp.status(500).send(`Error ${err}`)
-                    resolve(false)
-                }
-                if (res.text.includes('Your login session has expired.  Please log in again.')) { // token expired
-                    resApp.status(403)
-                    resApp.send('Tabroom.com token is out of date, please run /login again to get token.')
-                    resolve(false)
-                } else {
-                    resolve(true)
-                }
-            })
-    })
-}
 
 // meta functions
 app.post('/getAPIKey', async (req, resApp) => {
@@ -101,6 +83,8 @@ superagent
 
 // routes
 app.use('/paradigm', require('./routes/paradigm'))
+app.use('/follow', require('./routes/follow'))
+app.use('/login', require('./routes/login'))
 
 
 var port = process.env.PORT
