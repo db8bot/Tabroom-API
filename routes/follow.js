@@ -42,7 +42,6 @@ router.post('/', async (req, resApp) => {
         .redirects(2)
         .end((err, res) => {
           if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
-          $ = cheerio.load(res.text)
           var response = {
             unfollowLink: `https://www.tabroom.com/index/tourn/updates/${res.text.match(/update_remove\.mhtml\?tourn_id=(\d+)&follower_id=(\d+)&.+?(category_id=)/g)[0]}`,
             entry_id: entryID,
