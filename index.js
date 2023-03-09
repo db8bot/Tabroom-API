@@ -23,20 +23,20 @@ if (process.env.PORT == null || process.env.PORT === '') { // for dev purposes
 
 
 // auth
-// async function getExistingApiKeys() {
-//     const dbClient = await database.connect()
-//     let keys = await dbClient.db('apikeys').collection('hashedKeys').find().toArray()
-//     existingKeys = keys[0]
-//     delete existingKeys._id
-//     existingKeys = existingKeys.keyList
-//     database.close()
-//     app.set('authKeys', existingKeys)
-//     return existingKeys
-// }
-
 async function getExistingApiKeys() {
-    return true
+    const dbClient = await database.connect()
+    let keys = await dbClient.db('apikeys').collection('hashedKeys').find().toArray()
+    existingKeys = keys[0]
+    delete existingKeys._id
+    existingKeys = existingKeys.keyList
+    database.close()
+    app.set('authKeys', existingKeys)
+    return existingKeys
 }
+
+// async function getExistingApiKeys() { //dev
+//     return true
+// }
 
 getExistingApiKeys().then(keys => (existingKeys = keys)).finally(() => {
     app.emit('ready')
@@ -51,9 +51,7 @@ function generateAPIKey() {
     var apiKey = randomBytes(36).toString('hex')
     var hashedAPIKey = hash(apiKey)
     return { apiKey, hashedAPIKey }
-
 }
-
 
 // meta functions
 app.post('/getAPIKey', async (req, resApp) => {

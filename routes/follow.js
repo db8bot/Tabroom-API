@@ -13,6 +13,7 @@ router.post('/', async (req, resApp) => {
 
   var authKeys = req.app.get('authKeys')
   if (!require('../helpers/auth').verifyAuth(authKeys, req, resApp)) return
+  if (!await require('../helpers/tokens').tabroomTokenTest(req, resApp)) return
 
   var useragent = req.app.get('useragent')
 

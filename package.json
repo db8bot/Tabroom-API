@@ -1,12 +1,12 @@
 {
   "name": "tabroomapi",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "doppler run --token=${DOPPLER_TOKEN} --command=\"node index.js\"",
-    "build": "docker build . -t tabroomapi-v2.0.0-prod",
+    "build": "docker build . -t tabroomapi-v2.1.0-prod",
     "buildarm": "docker buildx build . --platform linux/amd64 -t tabroomapi-v2.0.0-prod",
     "start-dev": "doppler run --command=\"node index.js\""
   },
