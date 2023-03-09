@@ -21,13 +21,7 @@ router.post('/', async (req, resApp) => {
 
     // check auth
     var authKeys = req.app.get('authKeys')
-    function hash(apiKey) {
-        return crypto.createHash('sha256').update(apiKey).digest('hex')
-    }
-    if (!req.body.auth) return resApp.status(401).send('Invalid API Key or no authentication provided.')
-    if (!authKeys.includes(hash(req.body.auth))) {
-        return resApp.status(401).send('Invalid API Key or no authentication provided.')
-    }
+    if (!require('../helpers/auth').verifyAuth(authKeys, req, resApp)) return
 
     let requestLink = ''
     var useragent = req.app.get('useragent')

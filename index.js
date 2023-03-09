@@ -85,6 +85,7 @@ superagent
 app.use('/paradigm', require('./routes/paradigm'))
 app.use('/follow', require('./routes/follow'))
 app.use('/login', require('./routes/login'))
+app.use('/tournamentinfo', require('./routes/tournamentinfo'))
 
 
 var port = process.env.PORT

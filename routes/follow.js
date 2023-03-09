@@ -11,8 +11,8 @@ const router = express.Router()
 
 router.post('/', async (req, resApp) => {
 
-  // var authKeys = req.app.get('authKeys')
-  // if (!require('../helpers/auth').verifyAuth(authKeys, req, resApp)) return
+  var authKeys = req.app.get('authKeys')
+  if (!require('../helpers/auth').verifyAuth(authKeys, req, resApp)) return
 
   var useragent = req.app.get('useragent')
 
