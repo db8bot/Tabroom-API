@@ -1,10 +1,2 @@
-
-node_modules/
-
-test.json
-
-apiKeys.json
-
-.DS_Store
-
-prod.env
+node_modules
+*.env
