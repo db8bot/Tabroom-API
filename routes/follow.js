@@ -34,7 +34,7 @@ router.post('/', async (req, resApp) => {
       // console.log(nativeArray)
       var foundTeamIndex = nativeArray.findIndex(item => item.attribs.title === req.body.code)
       // console.log(foundTeamIndex)
-      var entryID = nativeArray[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '')
+      var entryID = nativeArray[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '') // TODO: add err processing for when team code is not found
       superagent
         .get(`https://www.tabroom.com/index/tourn/updates/entry_follow.mhtml?entry_id=${entryID}&tourn_id=${tournID}`)
         .set('Cookie', req.body.token)
@@ -43,12 +43,12 @@ router.post('/', async (req, resApp) => {
         .end((err, res) => {
           if (err && err.status !== 302) resApp.status(500).send(`Error ${err}`)
           var response = {
-            unfollowLink: `https://www.tabroom.com/index/tourn/updates/${res.text.match(/update_remove\.mhtml\?tourn_id=(\d+)&follower_id=(\d+)&.+?(category_id=)/g)[0]}`,
+            unfollowLink: `https://www.tabroom.com/index/tourn/updates/${res.text.match(/update_remove\.mhtml\?follower_id=(\d+)&tourn_id=(\d+)&event_id=(\d+)&category_id=/gm)[0]}`,
             entry_id: entryID,
             tourn_id: tournID,
             follower_id: res.text.match(/follower_id=(\d+)/g)[0].replace('follower_id=', ''),
             // eslint-disable-next-line no-control-regex
-            email: res.text.match(/email=(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g)[0].replace('email=', '')
+            email: res.text.match(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g)[0]
           }
           resApp.send(response)
         })
