@@ -26,7 +26,7 @@ jobs:
             bash install.sh --disable-prompts
             export PATH=/home/circleci/google-cloud-sdk/bin:$PATH;
             echo ${GCLOUD_SERVICE_KEY} > ${HOME}/account-auth.json
-            gcloud auth activate-service-account circleci-docker-build@debateapis.iam.gserviceaccount.com --key-file=${HOME}/account-auth.json
+            gcloud auth activate-service-account circleci-docker-build-312@debateapis.iam.gserviceaccount.com --key-file=${HOME}/account-auth.json
             gcloud auth configure-docker us-central1-docker.pkg.dev
             export IMGNAME=$(node -p "require('./package.json').scripts.build.replace('docker build . -t ','')")
             docker tag "$IMGNAME" us-central1-docker.pkg.dev/debateapis/tabroomapi/"$IMGNAME"
