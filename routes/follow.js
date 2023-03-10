@@ -36,6 +36,8 @@ router.post('/', async (req, resApp) => {
       var foundTeamIndex = nativeArray.findIndex(item => item.attribs.title === req.body.code)
       // console.log(foundTeamIndex)
       var entryID = nativeArray[foundTeamIndex].attribs.href.match(/entry_id=(\d+)/g)[0].replace('entry_id=', '') // TODO: add err processing for when team code is not found
+
+      var event = $('.dkblue.block').text().replace(/\t/g, '').replace(/\n/g, '').replace(/\r/g, '').replace(/\s\s+/g, ' ').trim()
       superagent
         .get(`https://www.tabroom.com/index/tourn/updates/entry_follow.mhtml?entry_id=${entryID}&tourn_id=${tournID}`)
         .set('Cookie', req.body.token)
@@ -49,7 +51,8 @@ router.post('/', async (req, resApp) => {
             tourn_id: tournID,
             follower_id: res.text.match(/follower_id=(\d+)/g)[0].replace('follower_id=', ''),
             // eslint-disable-next-line no-control-regex
-            email: res.text.match(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g)[0]
+            email: res.text.match(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g)[0],
+            event: event
           }
           resApp.send(response)
         })
